@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1080784316451",
+    "project_id": "rantyaregister",
+    "storage_bucket": "rantyaregister.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1080784316451:android:7715a45844198f99cfa996",
+        "android_client_info": {
+          "package_name": "com.bookies.register"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1080784316451-tq2guaemk19g829jenkuf4aceeu706a6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnOoGjwq_D4kEKXV_qDWJfbRivraL2zBg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1080784316451-tq2guaemk19g829jenkuf4aceeu706a6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
