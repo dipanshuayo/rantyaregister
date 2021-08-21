@@ -2,11 +2,42 @@ package com.bookies.register
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.input.input
 
 class SplashActivity : AppCompatActivity() {
-    
+    lateinit var state:Store
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
+        state=Store(applicationContext)
+        makeDialog()
     }
+    //checks if user is already logged in
+    private fun checkLogin(): Boolean {
+        return state getBooleanValue "login"
+    }
+    private fun makeDialog(){
+
+        if(checkLogin()){
+            Toast.makeText(applicationContext,"Logged in",Toast.LENGTH_SHORT).show()
+        }
+        else{
+            createMaterialInputDialog()
+        }
+    }
+    private fun createMaterialInputDialog(){
+        MaterialDialog(this@SplashActivity).show {
+            input(hintRes = R.string.login_dialog_hint_text,maxLength = 5){dialog,passCode->
+                handleLogin(passCode.toString())
+            }
+            positiveButton(R.string.login_dialog_postivie_button_text)
+        }
+    }
+    //ayo this is your place do your functions in this function
+    private fun handleLogin(passCode:String){
+        //TODO("AYO IMPLEMENT THE CHECK")
+    }
+
 }

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">register</string>
+    <string name="login_dialog_hint_text">passcode</string>
+    <string name="login_dialog_postivie_button_text">Enter</string>
 </resources>
