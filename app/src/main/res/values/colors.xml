@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+    <color name="colorPrimary">@color/md_disabled_text_dark_theme</color>
+    <color name="colorPrimaryDark">@color/md_divider_dark_theme</color>
+    <color name="colorAccent">#b50921</color>
     <color name="ic_launcher_background">#C3C3C3</color>
 </resources>
