@@ -2,4 +2,32 @@
     <string name="app_name">register</string>
     <string name="login_dialog_hint_text">passcode</string>
     <string name="login_dialog_postivie_button_text">Enter</string>
+    <string-array name="options_titles_for_list_view">
+        <item>
+            Students
+        </item>
+        <item>
+            Dates
+        </item>
+        <item>
+            Take Attendance
+        </item>
+        <item>
+            Help
+        </item>
+    </string-array>
+    <string-array name="options_descriptions_for_list_view">
+        <item>
+            Check and edit  students attendance
+        </item>
+        <item>
+            Check and edit attendance by date
+        </item>
+        <item>
+            Take attendance for today
+        </item>
+        <item>
+            Learn how to use this app
+        </item>
+    </string-array>
 </resources>

@@ -1,5 +1,6 @@
 package com.bookies.register
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -38,6 +39,10 @@ class SplashActivity : AppCompatActivity() {
     //ayo this is your place do your functions in this function
     private fun handleLogin(passCode:String){
         //TODO("AYO IMPLEMENT THE CHECK")
+        makeIntentToTeacherActivity()
+    }
+    private fun makeIntentToTeacherActivity(){
+       startActivity(Intent(this@SplashActivity,TeacherActivity::class.java))
     }
 
 }
