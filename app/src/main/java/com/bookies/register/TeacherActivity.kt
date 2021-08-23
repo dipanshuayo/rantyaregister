@@ -1,5 +1,6 @@
 package com.bookies.register
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_teacher.*
@@ -13,6 +14,36 @@ class TeacherActivity : AppCompatActivity() {
         getListViewIcons()
         createOptionsList()
         createOptionsListView()
+        setOnClickListenerOnListView()
+    }
+    private fun setOnClickListenerOnListView(){
+        options_list_view.setOnItemClickListener { _, _, position, _ ->
+            handleOnClickListenerForListView(position)
+        }
+    }
+    private fun handleOnClickListenerForListView(position:Int){
+        when(position){
+            0->studentsOptionClicked()
+            1->datesOptionClicked()
+            2->takeAttendanceOptionClicked()
+            3->helpOptionClicked()
+        }
+    }
+
+    private fun helpOptionClicked() {
+        startActivity(Intent(this@TeacherActivity,HelpActivity::class.java))
+    }
+
+    private fun takeAttendanceOptionClicked() {
+        TODO("Not yet implemented")
+    }
+
+    private fun datesOptionClicked() {
+        TODO("Not yet implemented")
+    }
+
+    private fun studentsOptionClicked() {
+        TODO("Not yet implemented")
     }
 
     private fun getListViewIcons(){

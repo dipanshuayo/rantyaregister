@@ -9,6 +9,7 @@ import com.afollestad.materialdialogs.input.input
 
 class SplashActivity : AppCompatActivity() {
     lateinit var state:Store
+    val s:String="\"jdfkj\""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
@@ -33,7 +34,7 @@ class SplashActivity : AppCompatActivity() {
             input(hintRes = R.string.login_dialog_hint_text,maxLength = 5){dialog,passCode->
                 handleLogin(passCode.toString())
             }
-            positiveButton(R.string.login_dialog_postivie_button_text)
+            positiveButton(R.string.login_dialog_postive_button_text)
         }
     }
     //ayo this is your place do your functions in this function

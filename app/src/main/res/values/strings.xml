@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">register</string>
-    <string name="login_dialog_hint_text">passcode</string>
-    <string name="login_dialog_postivie_button_text">Enter</string>
+    <string name="login_dialog_hint_text">class code</string>
+    <string name="login_dialog_postive_button_text">Enter</string>
+    <string name="help_dialog_positive_button_text">Close</string>
     <string-array name="options_titles_for_list_view">
         <item>
             Students
@@ -28,6 +29,38 @@
         </item>
         <item>
             Learn how to use this app
+        </item>
+    </string-array>
+    <string-array name="help_options_title_for_list_view">
+        <item>
+            How to take attendance?
+        </item>
+        <item>
+            How to check attendance of a specific date?
+        </item>
+        <item>
+            How to change attendance of a specific date?
+        </item>
+        <item>
+            How to check attendance of a particular student?
+        </item>
+    </string-array>
+    <string-array name="help_options_descriptions_for_list_view">
+        <item>
+            1.Type your class code to login in on the starting screen. If you have skip this step.\n
+            2.Go to the \"Take Attendance\" option and click it.\n
+            note:if you haven\'t added students then when you click on the \"Take Attendance\" option it will take you to the place where you can add students.\n
+            3.A screen will come up where you can click on the box if the student is present or not click on the box if the student is absent.\n
+            4.Click on save.\n
+        </item>
+        <item>
+            Test
+        </item>
+        <item>
+            Test
+        </item>
+        <item>
+            test
         </item>
     </string-array>
 </resources>
