@@ -35,7 +35,7 @@ class TeacherActivity : AppCompatActivity() {
     }
 
     private fun takeAttendanceOptionClicked() {
-        TODO("Not yet implemented")
+        startActivity(Intent(this@TeacherActivity,TakeAttendanceActivity::class.java))
     }
 
     private fun datesOptionClicked() {

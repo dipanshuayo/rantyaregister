@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TakeAttendanceActivity">
+   <LinearLayout
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:orientation="vertical">
+       <FrameLayout
+           tools:layout_height="555dp"
+           android:id="@+id/student_attendance_fragment_holder"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"/>
+       <Button
+           android:id="@+id/save_attendance_button"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:text="@string/save"
+           style="@style/AppTheme.Button"
+           android:layout_margin="@dimen/_16sdp"/>
+
+   </LinearLayout>
+
+
+</ScrollView>
