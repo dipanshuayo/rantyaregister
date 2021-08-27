@@ -11,6 +11,7 @@ import kotlinx.android.synthetic.main.activity_take_attendance.*
 import kotlinx.android.synthetic.main.fragment_student_attendance.*
 
 class TakeAttendanceActivity : AppCompatActivity() {
+    lateinit var   studentAttendanceFragment:StudentAttendanceFragment
     private val studentsNameArray=arrayOf(
         "Asdkfalsfd","Bsdfflas kfaslkdf","Calksdf ksldf","D asldfsf","Eskdlfj lsndfl","Fsdkfjlk lsdkjf",
         "Gsdklf","Hsdfnlafd","Iasdfsdf","sdkflJ ds","sklfKdskf",
@@ -31,8 +32,16 @@ class TakeAttendanceActivity : AppCompatActivity() {
     private fun getStudentsName(){
         TODO("IMPLEMENT LATER")
     }
+    private fun setSaveButtonOnClickListener(){
+        save_attendance_button.setOnClickListener {
+            TODO("IMPLEMENT LATER")
+        }
+    }
+    private fun onSaveButtonClick(){
+        studentAttendanceFragment.getStudentsAttendance()
+    }
     private fun createStudentAttendance(){
-        val studentAttendanceFragment=StudentAttendanceFragment.newInstance(studentsNameArray,studentsAttendance)
+         studentAttendanceFragment=StudentAttendanceFragment.newInstance(studentsNameArray,studentsAttendance,"SAVE")
         supportFragmentManager
             .beginTransaction()
             .add(R.id.student_attendance_fragment_holder,studentAttendanceFragment,"studentAttendance")
