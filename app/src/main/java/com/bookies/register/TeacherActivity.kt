@@ -3,10 +3,14 @@ package com.bookies.register
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.datetime.datePicker
 import kotlinx.android.synthetic.main.activity_teacher.*
+import java.util.*
 
 class TeacherActivity : AppCompatActivity() {
     var options:MutableList<Option> = mutableListOf()
+    var todayDate:Calendar= Calendar.getInstance()
     lateinit var listViewIcons:Array<Int>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,10 +43,18 @@ class TeacherActivity : AppCompatActivity() {
     }
 
     private fun datesOptionClicked() {
-        TODO("Not yet implemented")
+       MaterialDialog(this@TeacherActivity).show {
+           datePicker(maxDate = todayDate){dialog,datetime->
+               handleDatePicked()
+           }
+
+       }
     }
 
     private fun studentsOptionClicked() {
+        TODO("Not yet implemented")
+    }
+    private fun handleDatePicked(){
         TODO("Not yet implemented")
     }
 
