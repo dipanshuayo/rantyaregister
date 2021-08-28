@@ -52,7 +52,7 @@ class TeacherActivity : AppCompatActivity() {
     }
 
     private fun studentsOptionClicked() {
-        TODO("Not yet implemented")
+        startActivity(Intent(this@TeacherActivity,StudentsActivity::class.java))
     }
     private fun handleDatePicked(){
         TODO("Not yet implemented")
