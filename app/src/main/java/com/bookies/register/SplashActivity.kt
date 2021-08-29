@@ -3,13 +3,20 @@ package com.bookies.register
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class SplashActivity : AppCompatActivity() {
     lateinit var state:Store
-    val s:String="\"jdfkj\""
+    val db= Firebase.firestore
+    private val PASSCODE_COLLECTION_PATH:String="passcodes"
+    private val CLASS_CODE_DOCUMENT_NAME:String="class_codes"
+    private val TAG:String="ClassCode_Document"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
@@ -37,11 +44,37 @@ class SplashActivity : AppCompatActivity() {
             positiveButton(R.string.login_dialog_postive_button_text)
         }
     }
-    //ayo this is your place do your functions in this function
-    private fun handleLogin(passCode:String){
-        //TODO("AYO IMPLEMENT THE CHECK")
+
+    private fun handleLogin(classCode:String){
+        val classCodes=db.collection(PASSCODE_COLLECTION_PATH).document(CLASS_CODE_DOCUMENT_NAME)
+        classCodes.get()
+            .addOnSuccessListener { document->
+                if (document != null) {
+                    verifyAndGetClassCode(document,classCode)
+                    Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+                } else {
+                    Log.d(TAG, "No such document")
+                }
+            }
+            .addOnFailureListener{exception->
+                Log.d(TAG, exception.toString())
+            }
         makeIntentToTeacherActivity()
     }
+
+    private fun verifyAndGetClassCode(document: DocumentSnapshot,classCode: String) {
+        if(document.contains(classCode)){
+            document.get(classCode)?.let { state.addValue("class", it as String) }
+            makeIntentToTeacherActivity()
+
+        }
+        else{
+            Toast.makeText(this@SplashActivity,R.string.failed_class_code_verification,Toast.LENGTH_LONG).show()
+            makeIntentToTeacherActivity()
+        }
+    }
+
+
     private fun makeIntentToTeacherActivity(){
        startActivity(Intent(this@SplashActivity,TeacherActivity::class.java))
     }
