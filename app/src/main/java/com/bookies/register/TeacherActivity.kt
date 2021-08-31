@@ -3,6 +3,8 @@ package com.bookies.register
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.datetime.datePicker
 import kotlinx.android.synthetic.main.activity_teacher.*
@@ -20,6 +22,24 @@ class TeacherActivity : AppCompatActivity() {
         createOptionsListView()
         setOnClickListenerOnListView()
     }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.teachers_activity_tool_bar_items,menu)
+        return true
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.log_out->handleOnLogOutClicked()
+            R.id.about_app->handleOnAboutAppClicked()
+        }
+        return true
+    }
+    private fun handleOnAboutAppClicked() {
+
+        TODO("Not yet implemented")
+    }
+    private fun handleOnLogOutClicked() {
+        TODO("Not yet implemented")
+    }
     private fun setOnClickListenerOnListView(){
         options_list_view.setOnItemClickListener { _, _, position, _ ->
             handleOnClickListenerForListView(position)
@@ -33,7 +53,6 @@ class TeacherActivity : AppCompatActivity() {
             3->helpOptionClicked()
         }
     }
-
     private fun helpOptionClicked() {
         startActivity(Intent(this@TeacherActivity,HelpActivity::class.java))
     }
@@ -50,7 +69,6 @@ class TeacherActivity : AppCompatActivity() {
 
        }
     }
-
     private fun studentsOptionClicked() {
         startActivity(Intent(this@TeacherActivity,StudentsActivity::class.java))
     }

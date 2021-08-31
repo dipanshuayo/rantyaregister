@@ -8,12 +8,15 @@ class Store(context: Context){
     val Storeeditor=store.edit()
     fun addValue(key:String,value:Any){
        when(value){
-           is String->Storeeditor.putString(key,value)
-           is Int->Storeeditor.putInt(key,value)
-           is Float->Storeeditor.putFloat(key, value)
-           is Long->Storeeditor.putLong(key,value)
-           is Boolean->Storeeditor.putBoolean(key,value)
+           is String->Storeeditor.putString(key,value).commit()
+           is Int->Storeeditor.putInt(key,value).commit()
+           is Float->Storeeditor.putFloat(key, value).commit()
+           is Long->Storeeditor.putLong(key,value).commit()
+           is Boolean->Storeeditor.putBoolean(key,value).commit()
        }
+    }
+    fun addValueString(key:String,value:String){
+        Storeeditor.putString(key,value)
     }
     infix  fun getBooleanValue(key: String):Boolean=store.getBoolean(key,false)
     infix  fun getStringValue(key: String): String? =store.getString(key,"#")

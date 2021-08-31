@@ -59,13 +59,18 @@ class SplashActivity : AppCompatActivity() {
             .addOnFailureListener{exception->
                 Log.d(TAG, exception.toString())
             }
-        makeIntentToTeacherActivity()
+
     }
 
     private fun verifyAndGetClassCode(document: DocumentSnapshot,classCode: String) {
         if(document.contains(classCode)){
-            document.get(classCode)?.let { state.addValue("class", it as String) }
+            val className:String = document.get(classCode).toString()
+            state.addValue("class",className)
+            Log.d(TAG, state getStringValue "class"?:"null")
+            Log.d(TAG,className)
+
             makeIntentToTeacherActivity()
+
 
         }
         else{
