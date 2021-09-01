@@ -41,10 +41,10 @@ class TakeAttendanceActivity : AppCompatActivity() {
         studentAttendanceFragment.getStudentsAttendance()
     }
     private fun createStudentAttendance(){
-         studentAttendanceFragment=StudentAttendanceFragment.newInstance(studentsNameArray,studentsAttendance,"SAVE")
+       //  studentAttendanceFragment=StudentAttendanceFragment.newInstance(studentsNameArray,studentsAttendance,"SAVE")
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.student_attendance_fragment_holder,studentAttendanceFragment,"studentAttendance")
+            .add(R.id.student_attendance_fragment_holder,AddStudentsFragment(),"studentAttendance")
             .commit()
 
     }

@@ -17,9 +17,20 @@ class StudentNamesRecyclerViewAdapter(val studentNames:MutableList<String>):
 
     override fun onBindViewHolder(holder: StudentNameViewHolder, position: Int) {
         holder.studentName.text=studentNames[position]
+        holder.deleteButton.setOnClickListener {
+            handleDeleteButton(position)
+        }
     }
     private fun handleDeleteButton(position:Int){
         studentNames.removeAt(position)
+        notifyDataSetChanged()
+        notifyItemRemoved(position)
+    }
+    fun addName(name:String){
+        studentNames.add(name)
+        print("add name has been called")
+        notifyDataSetChanged()
+        notifyItemInserted(studentNames.size-1)
     }
     override fun getItemCount(): Int =studentNames.size
     class StudentNameViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
