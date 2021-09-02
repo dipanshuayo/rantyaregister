@@ -33,6 +33,7 @@ class AddStudentsFragment : Fragment() {
 
         }
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,7 +52,7 @@ class AddStudentsFragment : Fragment() {
         studentNameRecyclerView.adapter=studentNamesRecyclerViewAdapter
     }
     private fun setUpButton(addStudentFragmentView: View){
-        addButton=addStudentFragmentView.findViewById(R.id.save_student_name_button)
+        addButton=addStudentFragmentView.findViewById(R.id.add_student_name_button)
         val editText=addStudentFragmentView.findViewById<EditText>(R.id.enter_student_name_edit_text)
         disableAddButton(editText.text.toString())
         handleEditText(editText)

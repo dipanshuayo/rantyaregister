@@ -27,21 +27,33 @@
         android:autofillHints="Name of Students"/>
 
     <Button
-        android:id="@+id/save_student_name_button"
+        android:id="@+id/add_student_name_button"
         style="@style/AppTheme.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/save" />
+        android:text="@string/add" />
 
 </LinearLayout>
 
-
+    <Button
+        android:id="@+id/save_student_name_button"
+        style="@style/AppTheme.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/save"
+       android:layout_marginStart="@dimen/_16sdp"
+        android:layout_marginEnd="@dimen/_16sdp"
+        app:layout_constraintBottom_toTopOf="@+id/students_name_edit_recyclerView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/add_student_edit_linear_layout" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/students_name_edit_recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/_32sdp"
+        android:layout_marginTop="@dimen/_32sdp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/add_student_edit_linear_layout"
