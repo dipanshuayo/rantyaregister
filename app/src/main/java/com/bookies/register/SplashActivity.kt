@@ -21,6 +21,7 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
         state=Store(applicationContext)
+        state.addValue("isStudentNameAdded",false)
         makeDialog()
     }
     //checks if user is already logged in

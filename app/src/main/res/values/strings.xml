@@ -71,4 +71,5 @@
     <string name="about_app">About set 2k21</string>
     <string name="enter_student_hint">Enter Student Name</string>
     <string name="delete_button_content_description">remove</string>
+    <string name="add">add</string>
 </resources>

@@ -9,25 +9,29 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
-import androidx.core.widget.addTextChangedListener
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.model.Document
+import com.google.firebase.ktx.Firebase
 
 private const val STUDENT_NAMES = "STUDENT_NAMES_FOR_EDITING"
 
 class AddStudentsFragment : Fragment() {
     private var studentNames: Array<String>? = null
-    private val studentsNameArray= mutableListOf(
-        "Asdkfalsfd","Bsdfflas kfaslkdf","Calksdf ksldf","D asldfsf","Eskdlfj lsndfl","Fsdkfjlk lsdkjf",
-        "Gsdklf","Hsdfnlafd","Iasdfsdf","sdkflJ ds","sklfKdskf",
-        "Lsdfadsf sdf","Msdfsd dasfd","Nasdfds adsf","Osfsdf","Pjklsdf",
-        "Qsdfsd","Rfsdfsf dsfd"
-        ,"Ssdfsdc","Tsdfsdfs sddsf","Usfsf dsfs","Vsdjflk kds","Wlkjsdf",
-        "Xdfsdfds","Ysdfsdfs","Zsdfsdfs")
-    lateinit var studentNamesRecyclerViewAdapter:StudentNamesRecyclerViewAdapter
-    lateinit var addButton:Button
+    val db = Firebase.firestore
+    private val COLLECTION_PATH: String = "classes"
+    private var DOCUMENT_NAME: String = "JSS1A"
+    lateinit var studentNamesRecyclerViewAdapter: StudentNamesRecyclerViewAdapter
+    lateinit var addButton: Button
+    lateinit var saveButton: Button
+    lateinit var state: Store
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         arguments?.let {
             studentNames = it.getStringArray(STUDENT_NAMES)
 
@@ -38,34 +42,131 @@ class AddStudentsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-       val addStudentFragmentView=inflater.inflate(R.layout.fragment_add_students, container, false)
+        state = activity?.let { Store(it.applicationContext) }!!
+        val addStudentFragmentView =
+            inflater.inflate(R.layout.fragment_add_students, container, false)
         setUpRecyclerView(addStudentFragmentView)
-        setUpButton(addStudentFragmentView)
+        setUpAddButtonAndEditText(addStudentFragmentView)
+        setUpSaveButton(addStudentFragmentView)
 
         return addStudentFragmentView
     }
-    private fun setUpRecyclerView(addStudentFragmentView:View){
 
-        val studentNameRecyclerView=addStudentFragmentView.findViewById<RecyclerView>(R.id.students_name_edit_recyclerView)
-        studentNamesRecyclerViewAdapter=StudentNamesRecyclerViewAdapter(studentsNameArray)
-        studentNameRecyclerView.layoutManager= LinearLayoutManager(activity,LinearLayoutManager.VERTICAL,false)
-        studentNameRecyclerView.adapter=studentNamesRecyclerViewAdapter
+    private fun setUpSaveButton(addStudentFragmentView: View) {
+        saveButton = addStudentFragmentView.findViewById(R.id.save_student_name_button)
+       //saveButton.isEnabled = studentNames?.size != 0
+        saveButton.setOnClickListener {
+            handleSaveButton()
+        }
+
     }
-    private fun setUpButton(addStudentFragmentView: View){
-        addButton=addStudentFragmentView.findViewById(R.id.add_student_name_button)
-        val editText=addStudentFragmentView.findViewById<EditText>(R.id.enter_student_name_edit_text)
+
+    private fun handleSaveButton() {
+        var addedNames: MutableList<String> = mutableListOf()
+        var deletedNames: MutableList<String> = mutableListOf()
+        if (studentNames?.size == 0) {
+            addedNames = studentNamesRecyclerViewAdapter.addedNames
+        } else {
+            deletedNames = studentNamesRecyclerViewAdapter.deletedNames
+        }
+        if (addedNames.isNotEmpty()) {
+            sendAddedNames(addedNames)
+        }
+        if (deletedNames.isNotEmpty()) {
+            sendDeletedNames(deletedNames)
+        }
+
+    }
+
+    private fun sendAddedNames(addedNames: MutableList<String>) {
+        val dataToSend = mapOf(
+            "names" to attachLatestRoleNumber(addedNames)
+        )
+        DOCUMENT_NAME = state getStringValue "class"
+        val studentNamesDocument = db.collection(COLLECTION_PATH).document(DOCUMENT_NAME)
+        if (studentNames.isNullOrEmpty()) {
+            studentNamesDocument
+                .set(dataToSend)
+                .addOnSuccessListener {
+                    state.addValue("isStudentNameAdded",true)
+                    makeStudentsSubCollection(studentNamesDocument,addedNames)
+
+                    Toast.makeText(activity, "Students name saved", Toast.LENGTH_LONG).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(activity, "Students name failed to save", Toast.LENGTH_LONG)
+                        .show()
+                }
+
+        } else {
+            studentNamesDocument.update(
+                "names",
+                FieldValue.arrayUnion(*arrayOf(dataToSend["names"]))
+            )
+        }
+
+
+    }
+
+    private fun makeStudentsSubCollection(document: DocumentReference, addedNames: MutableList<String>) {
+        val dataToBeSent=mapOf<String,List<String>>(
+            "dates_present" to listOf<String>(),
+            "dates_absent" to listOf<String>()
+        )
+        addedNames.forEach { id->
+            document.collection("students").document(id)
+                .set(dataToBeSent)
+                .addOnSuccessListener {
+                    Toast.makeText(activity,"Saving of students done",Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(activity,"Saving of students failed",Toast.LENGTH_LONG).show()
+                }
+        }
+
+    }
+
+
+    private fun attachLatestRoleNumber(names: MutableList<String>): List<String> {
+        var rollNumber = state getIntValue "lastRollNumber"
+        return names.map { name -> "$name-${rollNumber++}" }
+
+    }
+
+    private fun sendDeletedNames(deletedNames: MutableList<String>) {
+
+    }
+
+
+    private fun setUpRecyclerView(addStudentFragmentView: View) {
+
+        val studentNameRecyclerView =
+            addStudentFragmentView.findViewById<RecyclerView>(R.id.students_name_edit_recyclerView)
+        studentNamesRecyclerViewAdapter =
+            StudentNamesRecyclerViewAdapter(studentNames?.toMutableList() ?: mutableListOf())
+        studentNameRecyclerView.layoutManager =
+            LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+        studentNameRecyclerView.adapter = studentNamesRecyclerViewAdapter
+    }
+
+    private fun setUpAddButtonAndEditText(addStudentFragmentView: View) {
+        addButton = addStudentFragmentView.findViewById(R.id.add_student_name_button)
+        val editText =
+            addStudentFragmentView.findViewById<EditText>(R.id.enter_student_name_edit_text)
         disableAddButton(editText.text.toString())
         handleEditText(editText)
         addButton.setOnClickListener {
-            handleSaveButton(editText.text.toString(),editText)
+            handleAddButton(editText.text.toString(), editText)
         }
     }
-    private fun handleSaveButton(name:String,editText: EditText){
+
+    private fun handleAddButton(name: String, editText: EditText) {
         studentNamesRecyclerViewAdapter.addName(name)
         editText.text.clear()
     }
-    private fun handleEditText(editText:EditText){
-        editText.addTextChangedListener(object: TextWatcher {
+
+    private fun handleEditText(editText: EditText) {
+        editText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 disableAddButton(s)
             }
@@ -81,7 +182,8 @@ class AddStudentsFragment : Fragment() {
         })
 
     }
-    private fun disableAddButton(text:CharSequence?){
+
+    private fun disableAddButton(text: CharSequence?) {
         addButton.isEnabled = !text.isNullOrEmpty()
     }
 
