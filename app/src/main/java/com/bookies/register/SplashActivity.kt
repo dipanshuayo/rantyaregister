@@ -14,14 +14,12 @@ import com.google.firebase.ktx.Firebase
 class SplashActivity : AppCompatActivity() {
     lateinit var state:Store
     val db= Firebase.firestore
-    private val PASSCODE_COLLECTION_PATH:String="passcodes"
-    private val CLASS_CODE_DOCUMENT_NAME:String="class_codes"
     private val TAG:String="ClassCode_Document"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
         state=Store(applicationContext)
-        state.addValue("isStudentNameAdded",false)
+        state.addValue("isStudentNameAdded",true)
         makeDialog()
     }
     //checks if user is already logged in
@@ -47,7 +45,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun handleLogin(classCode:String){
-        val classCodes=db.collection(PASSCODE_COLLECTION_PATH).document(CLASS_CODE_DOCUMENT_NAME)
+        val classCodes=db.collection(Constants.PASSCODE_COLLECTION_PATH).document(Constants.CLASS_CODE_DOCUMENT_NAME)
         classCodes.get()
             .addOnSuccessListener { document->
                 if (document != null) {

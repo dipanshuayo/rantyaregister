@@ -23,7 +23,6 @@ private const val STUDENT_NAMES = "STUDENT_NAMES_FOR_EDITING"
 class AddStudentsFragment : Fragment() {
     private var studentNames: Array<String>? = null
     val db = Firebase.firestore
-    private val COLLECTION_PATH: String = "classes"
     private var DOCUMENT_NAME: String = "JSS1A"
     lateinit var studentNamesRecyclerViewAdapter: StudentNamesRecyclerViewAdapter
     lateinit var addButton: Button
@@ -83,7 +82,7 @@ class AddStudentsFragment : Fragment() {
             "names" to attachLatestRoleNumber(addedNames)
         )
         DOCUMENT_NAME = state getStringValue "class"
-        val studentNamesDocument = db.collection(COLLECTION_PATH).document(DOCUMENT_NAME)
+        val studentNamesDocument = db.collection(Constants.CLASSES_COLLECTION_PATH).document(DOCUMENT_NAME)
         if (studentNames.isNullOrEmpty()) {
             studentNamesDocument
                 .set(dataToSend)
