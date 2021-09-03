@@ -20,13 +20,16 @@ class TeacherActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_teacher)
         state=Store(applicationContext)
+        setAcademicTerm()
         getTodayDate()
         getListViewIcons()
         createOptionsList()
         createOptionsListView()
         setOnClickListenerOnListView()
     }
-
+    private fun setAcademicTerm(){
+        state.addValue("term","first_term")
+    }
     private fun getTodayDate() {
         val calendar=Calendar.getInstance()
         val simpleDateFormat=SimpleDateFormat("dd-MM-yyyy")

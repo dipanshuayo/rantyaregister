@@ -92,8 +92,9 @@ class TakeAttendanceActivity : AppCompatActivity() {
         val dataToBeSent=studentAttendanceFragment.getStudentsAttendance()
         val className=state getStringValue "class"
         val todayDate=state getStringValue "today_date"
-        db.collection(Constants.DATES_COLLECTION_PATH)
-            .document(state getStringValue "today_date")
+        val term=state getStringValue "term"
+        db.collection("${Constants.DATES_COLLECTION_PATH}/${term}/${todayDate}/")
+            .document(className)
             .set(dataToBeSent)
         dataToBeSent.forEach { (name, attendance) ->
             val studentAttendanceDoc=db.collection("${Constants.CLASSES_COLLECTION_PATH}/${className}/${Constants.STUDENTS_COLLECTION_PATH}/").document(name)
