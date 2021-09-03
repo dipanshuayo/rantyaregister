@@ -73,4 +73,5 @@
     <string name="delete_button_content_description">remove</string>
     <string name="add">add</string>
     <string name="save_changes">Save Changes</string>
+    <string name="add_students">Add students</string>
 </resources>
