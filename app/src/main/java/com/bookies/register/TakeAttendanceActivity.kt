@@ -1,5 +1,6 @@
 package com.bookies.register
 
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +10,8 @@ import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_take_attendance.*
@@ -22,6 +25,7 @@ class TakeAttendanceActivity : AppCompatActivity() {
     private val studentsAttendance = mutableListOf<Boolean>()
 
     private val TAG:String="TakeAttendanceDocument"
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_take_attendance)
@@ -55,6 +59,7 @@ class TakeAttendanceActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun getStudentsName() {
         val className=state getStringValue "class"
       db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
@@ -64,6 +69,7 @@ class TakeAttendanceActivity : AppCompatActivity() {
                   studentsNameArray= document.get(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME) as MutableList<String>
                   setAttendances()
                   createStudentAttendance()
+                  setSaveButtonOnClickListener()
                   Log.d(TAG,studentsNameArray.toString())
               }
           }
@@ -75,14 +81,36 @@ class TakeAttendanceActivity : AppCompatActivity() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun setSaveButtonOnClickListener() {
         save_attendance_button.setOnClickListener {
-            TODO("IMPLEMENT LATER")
+            onSaveButtonClick()
         }
     }
 
     private fun onSaveButtonClick() {
-        studentAttendanceFragment.getStudentsAttendance()
+        val dataToBeSent=studentAttendanceFragment.getStudentsAttendance()
+        val className=state getStringValue "class"
+        val todayDate=state getStringValue "today_date"
+        db.collection(Constants.DATES_COLLECTION_PATH)
+            .document(state getStringValue "today_date")
+            .set(dataToBeSent)
+        dataToBeSent.forEach { (name, attendance) ->
+            val studentAttendanceDoc=db.collection("${Constants.CLASSES_COLLECTION_PATH}/${className}/${Constants.STUDENTS_COLLECTION_PATH}/").document(name)
+            if(attendance){
+                studentAttendanceDoc.update(
+                    "dates_present" ,
+                    FieldValue.arrayUnion(todayDate)
+                )
+            }
+            else{
+                studentAttendanceDoc.update(
+                    "dates_absent",
+                    FieldValue.arrayUnion(todayDate)
+                )
+            }
+        }
+
     }
 
     private fun createStudentAttendance() {

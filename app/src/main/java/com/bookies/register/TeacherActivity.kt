@@ -8,20 +8,32 @@ import android.view.MenuItem
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.datetime.datePicker
 import kotlinx.android.synthetic.main.activity_teacher.*
+import java.text.SimpleDateFormat
 import java.util.*
 
 class TeacherActivity : AppCompatActivity() {
     var options:MutableList<Option> = mutableListOf()
     var todayDate:Calendar= Calendar.getInstance()
     lateinit var listViewIcons:Array<Int>
+    lateinit var state:Store
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_teacher)
+        state=Store(applicationContext)
+        getTodayDate()
         getListViewIcons()
         createOptionsList()
         createOptionsListView()
         setOnClickListenerOnListView()
     }
+
+    private fun getTodayDate() {
+        val calendar=Calendar.getInstance()
+        val simpleDateFormat=SimpleDateFormat("dd-MM-yyyy")
+        state.addValue("today_date",simpleDateFormat.format(calendar.time))
+
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.teachers_activity_tool_bar_items,menu)
         return true

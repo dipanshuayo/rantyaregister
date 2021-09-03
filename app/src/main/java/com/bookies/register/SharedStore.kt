@@ -7,6 +7,7 @@ import android.content.Context
  * isStudentNameAdded to check if studentNameIsAdded
  * login check if teacher logged in
  * class gets class name of teacher
+ * today_date gets today's date
  */
 class Store(context: Context){
     val STORE_NAME="com.bookies.register.store"
@@ -25,6 +26,7 @@ class Store(context: Context){
     infix  fun getBooleanValue(key: String):Boolean=store.getBoolean(key,false)
     infix  fun getStringValue(key: String): String =store.getString(key,"#")?:"null"
     infix fun deleteStringValue(key: String)= Storeeditor.remove(key)
+
 
 
 }
