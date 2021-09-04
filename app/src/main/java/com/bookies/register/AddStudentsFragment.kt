@@ -108,12 +108,15 @@ class AddStudentsFragment : Fragment() {
     }
 
     private fun makeStudentsSubCollection(document: DocumentReference, addedNames: MutableList<String>) {
-        val dataToBeSent=mapOf<String,List<String>>(
-            "dates_present" to listOf<String>(),
-            "dates_absent" to listOf<String>()
+        val dataToBeSent=mapOf(
+            state getStringValue "term" to mapOf<String,List<String>>(
+                "dates_present" to listOf<String>(),
+                "dates_absent" to listOf<String>()
+            )
+
         )
         addedNames.forEach { id->
-            document.collection("students").document(id)
+            document.collection(Constants.STUDENTS_COLLECTION_PATH).document(id)
                 .set(dataToBeSent)
                 .addOnSuccessListener {
                     Toast.makeText(activity,"Saving of students done",Toast.LENGTH_SHORT).show()

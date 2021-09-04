@@ -79,6 +79,7 @@ class StudentsActivity : AppCompatActivity() {
             }
             noAutoDismiss()
             negativeButton(res = R.string.help_dialog_positive_button_text)
+            
         }
     }
 
@@ -89,9 +90,12 @@ class StudentsActivity : AppCompatActivity() {
     }
 
     private fun makeStudentsSubCollection(document: DocumentReference, addedName: String) {
-        val dataToBeSent = mapOf<String, List<String>>(
-            "dates_present" to listOf<String>(),
-            "dates_absent" to listOf<String>()
+        val dataToBeSent=mapOf(
+            state getStringValue "term" to mapOf<String,List<String>>(
+                "dates_present" to listOf<String>(),
+                "dates_absent" to listOf<String>()
+            )
+
         )
 
         document.collection("students").document(addedName)

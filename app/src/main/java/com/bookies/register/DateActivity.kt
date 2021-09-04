@@ -56,23 +56,24 @@ class DateActivity : AppCompatActivity() {
     }
     private fun updateStudentsAttendance(dataToBeSent: MutableMap<String, Boolean>) {
         val className=state getStringValue "class"
+        val term=state getStringValue "term"
         dataToBeSent.forEach { (name, attendance) ->
             val studentAttendanceDoc=db.collection("${Constants.CLASSES_COLLECTION_PATH}/${className}/${Constants.STUDENTS_COLLECTION_PATH}/").document(name)
             if(attendance){
                 //removes the date from date_absent
-                removeDate(studentAttendanceDoc,"dates_absent")
+                removeDate(studentAttendanceDoc,"${term}.dates_absent")
                 //adds the new date to dates_present
                 studentAttendanceDoc.update(
-                    "dates_present" ,
+                    "${term}.dates_present" ,
                     FieldValue.arrayUnion(date)
                 )
             }
             else{
                 //removes the date from date_absent
-                removeDate(studentAttendanceDoc,"dates_present")
+                removeDate(studentAttendanceDoc,"${term}.dates_present")
                 //adds the new date to dates_present
                 studentAttendanceDoc.update(
-                    "dates_absent",
+                    "${term}.dates_absent",
                     FieldValue.arrayUnion(date)
                 )
             }

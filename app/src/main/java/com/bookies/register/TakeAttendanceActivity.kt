@@ -100,13 +100,13 @@ class TakeAttendanceActivity : AppCompatActivity() {
             val studentAttendanceDoc=db.collection("${Constants.CLASSES_COLLECTION_PATH}/${className}/${Constants.STUDENTS_COLLECTION_PATH}/").document(name)
             if(attendance){
                 studentAttendanceDoc.update(
-                    "dates_present" ,
+                    "${term}.dates_present" ,
                     FieldValue.arrayUnion(todayDate)
                 )
             }
             else{
                 studentAttendanceDoc.update(
-                    "dates_absent",
+                    "${term}.dates_absent",
                     FieldValue.arrayUnion(todayDate)
                 )
             }
