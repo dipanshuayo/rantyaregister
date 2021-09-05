@@ -99,17 +99,20 @@ class SplashActivity : AppCompatActivity() {
 
     private fun setIsStudentNameAdded() {
         val className=state getStringValue "class"
-        val classDoc=db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
-            .get()
-            .addOnSuccessListener { document->
-                if(document.contains("is_students_added") && document.getBoolean("is_students_added") == true){
-                    state.addValue("isStudentNameAdded",true)
+        if(className != "null") {
+            db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document.contains(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME)) {
+                        state.addValue("isStudentNameAdded", true)
+                    } else {
+                        state.addValue("isStudentNameAdded", false)
+                    }
+                    makeIntentToTeacherActivity()
                 }
-                else{
-                    state.addValue("isStudentNameAdded",false)
-                }
-            }
+        }
     }
+
 
     private fun verifyAndGetClassCode(document: DocumentSnapshot, classCode: String) {
         if (document.contains(classCode)) {
@@ -118,7 +121,7 @@ class SplashActivity : AppCompatActivity() {
             state.addValue("login", true)
             Log.d(TAG, state getStringValue "class")
             Log.d(TAG, className)
-            makeIntentToTeacherActivity()
+
         } else {
             Toast.makeText(
                 this@SplashActivity,

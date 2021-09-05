@@ -26,7 +26,7 @@ class Store(context: Context){
     }
     infix fun getIntValue(key:String):Int=store.getInt(key,0)
     infix  fun getBooleanValue(key: String):Boolean=store.getBoolean(key,false)
-    infix  fun getStringValue(key: String): String =store.getString(key,"#")?:"null"
+    infix  fun getStringValue(key: String): String =store.getString(key,"null")?:"null"
     infix fun deleteStringValue(key: String)= Storeeditor.remove(key)
 
 
