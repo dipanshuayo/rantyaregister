@@ -6,7 +6,6 @@ import android.text.InputType
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -28,14 +27,11 @@ class StudentsActivity : AppCompatActivity() {
     private var studentsNameArray = listOf<String>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_students)
         state = Store(applicationContext)
         className = state getStringValue "class"
         getStudentsName()
-        setContentView(R.layout.activity_students)
-        initializeArrayAdapter()
-        addArrayAdapterToListView()
-        setOnClickListenerToListView()
-        setOnHoldClickListenerToListView()
+
     }
 
     private fun setOnHoldClickListenerToListView() {
@@ -50,7 +46,9 @@ class StudentsActivity : AppCompatActivity() {
     }
     private fun deleteStudent(name: String) {
         val classDoc = db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
-        classDoc.update(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME, FieldValue.arrayUnion(name))
+        classDoc.update(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME, FieldValue.arrayRemove(name)).addOnSuccessListener {
+            arrayAdapterForStudentsName.remove(name)
+        }
         deleteStudentFromCollection(classDoc,name)
     }
     private fun deleteStudentFromCollection(classDoc:DocumentReference,name:String){
@@ -75,18 +73,29 @@ class StudentsActivity : AppCompatActivity() {
             title(text = "Add a student")
             input(hint = "Student Name", inputType = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES)
             positiveButton(res = R.string.add) {
-                addStudent(it.getInputField().toString())
+                addStudent(addLatestRollNumberToName(it.getInputField().text.toString()))
             }
             noAutoDismiss()
-            negativeButton(res = R.string.help_dialog_positive_button_text)
+            negativeButton(res = R.string.help_dialog_positive_button_text){
+                dismiss()
+            }
             
         }
     }
 
     private fun addStudent(name: String) {
         val classDoc = db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
-        classDoc.update(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME, FieldValue.arrayUnion(name))
-        makeStudentsSubCollection(classDoc,name)
+
+        classDoc.update(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME, FieldValue.arrayUnion(name)).addOnSuccessListener {
+            arrayAdapterForStudentsName.add(name)
+
+            makeStudentsSubCollection(classDoc,name)
+        }
+
+    }
+
+    private fun addLatestRollNumberToName(name: String): String {
+        return name.plus("-${students_list_view.adapter.count}")
     }
 
     private fun makeStudentsSubCollection(document: DocumentReference, addedName: String) {
@@ -122,6 +131,11 @@ class StudentsActivity : AppCompatActivity() {
                     studentsNameArray =
                         document.get(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME) as List<String>
                     Log.d(TAG, studentsNameArray.toString())
+                    initializeArrayAdapter()
+                    addArrayAdapterToListView()
+                    setOnClickListenerToListView()
+                    setOnHoldClickListenerToListView()
+
                 }
             }
             .addOnCanceledListener {
@@ -137,48 +151,45 @@ class StudentsActivity : AppCompatActivity() {
 
     private fun handleOnClickListenerForStudentListView(position: Int) {
         val studentName = studentsNameArray[position]
-        val message = createStudentAttendanceHistoryText(
-            getNumberOfDates(studentName, "dates_present"),
-            getNumberOfDates(studentName, "dates_absent")
-        )
+        createFinalDialog(studentName)
+    }
+    private fun makeDialog(studentName:String,message:String){
         MaterialDialog(this@StudentsActivity).show {
             title(text = studentName)
             message(text = message)
             positiveButton(res = R.string.help_dialog_positive_button_text)
         }
     }
-
-    private fun getNumberOfDates(studentName: String, fieldName: String): Int {
-        var dates = listOf<String>()
+    private fun createFinalDialog(studentName: String){
+        val term=state getStringValue "term"
         val docRef =
             db.collection("${Constants.CLASSES_COLLECTION_PATH}/${className}/${Constants.STUDENTS_COLLECTION_PATH}")
                 .document(studentName)
         docRef.get().addOnSuccessListener { document ->
-            dates = document.get(fieldName) as List<String>
+            val numberOfDatesPresent = document.get("${term}.dates_present") as List<String>
+            val numberOfDatesAbsent = document.get("${term}.dates_absent") as List<String>
+            val message=createStudentAttendanceHistoryText(numberOfDatesPresent.size,numberOfDatesAbsent.size)
+            makeDialog(studentName,message)
+            Log.d(TAG,"absent-${numberOfDatesAbsent}present-${numberOfDatesPresent}")
             Toast.makeText(applicationContext, "got the dates", Toast.LENGTH_SHORT).show()
         }
             .addOnFailureListener {
                 Toast.makeText(applicationContext, "Failed", Toast.LENGTH_SHORT).show()
             }
-        return dates.size
+
     }
-
-
     private fun createStudentAttendanceHistoryText(
         NumberOfPresentDates: Int,
-        NumberOfAbsentDates: Int
+        NumberOfAbsentDates: Int,
     ): String {
         return "Number of days PRESENT:$NumberOfPresentDates\n " +
                 "Number of days ABSENT:$NumberOfAbsentDates\n" +
                 "Total number of days:${NumberOfAbsentDates + NumberOfPresentDates}"
 
     }
-
     private fun addArrayAdapterToListView() {
-
         students_list_view.adapter = arrayAdapterForStudentsName
     }
-
     private fun initializeArrayAdapter() {
         arrayAdapterForStudentsName = ArrayAdapter(
             this@StudentsActivity,

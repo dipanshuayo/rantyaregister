@@ -8,6 +8,8 @@ import android.content.Context
  * login check if teacher logged in
  * class gets class name of teacher
  * today_date gets today's date
+ * selected_date gets the date selected on date picker
+ * term gets the current term
  */
 class Store(context: Context){
     val STORE_NAME="com.bookies.register.store"

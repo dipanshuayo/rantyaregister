@@ -19,9 +19,14 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
         state=Store(applicationContext)
-        state.addValue("isStudentNameAdded",true)
+       // clearStore()
         makeDialog()
     }
+
+    private fun clearStore() {
+        state.Storeeditor.clear()
+    }
+
     //checks if user is already logged in
     private fun checkLogin(): Boolean {
         return state getBooleanValue "login"
@@ -30,6 +35,7 @@ class SplashActivity : AppCompatActivity() {
 
         if(checkLogin()){
             Toast.makeText(applicationContext,"Logged in",Toast.LENGTH_SHORT).show()
+            makeIntentToTeacherActivity()
         }
         else{
             createMaterialInputDialog()
@@ -67,7 +73,7 @@ class SplashActivity : AppCompatActivity() {
             state.addValue("class",className)
             Log.d(TAG, state getStringValue "class"?:"null")
             Log.d(TAG,className)
-
+            state.addValue("login",true)
             makeIntentToTeacherActivity()
 
 

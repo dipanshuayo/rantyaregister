@@ -88,7 +88,11 @@ class AddStudentsFragment : Fragment() {
                 .set(dataToSend)
                 .addOnSuccessListener {
                     state.addValue("isStudentNameAdded",true)
-                    makeStudentsSubCollection(studentNamesDocument,addedNames)
+                    dataToSend["names"]?.toMutableList()?.let { it1 ->
+                        makeStudentsSubCollection(studentNamesDocument,
+                            it1
+                        )
+                    }
 
                     Toast.makeText(activity, "Students name saved", Toast.LENGTH_LONG).show()
                 }

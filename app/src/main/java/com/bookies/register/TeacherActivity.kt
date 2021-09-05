@@ -16,6 +16,7 @@ class TeacherActivity : AppCompatActivity() {
     var todayDate:Calendar= Calendar.getInstance()
     lateinit var listViewIcons:Array<Int>
     lateinit var state:Store
+    val DATE_PATTERN="dd-MM-yyyy"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_teacher)
@@ -32,7 +33,7 @@ class TeacherActivity : AppCompatActivity() {
     }
     private fun getTodayDate() {
         val calendar=Calendar.getInstance()
-        val simpleDateFormat=SimpleDateFormat("dd-MM-yyyy")
+        val simpleDateFormat=SimpleDateFormat(DATE_PATTERN)
         state.addValue("today_date",simpleDateFormat.format(calendar.time))
 
     }
@@ -79,7 +80,7 @@ class TeacherActivity : AppCompatActivity() {
     private fun datesOptionClicked() {
        MaterialDialog(this@TeacherActivity).show {
            datePicker(maxDate = todayDate){dialog,datetime->
-               handleDatePicked()
+               handleDatePicked(datetime)
            }
 
        }
@@ -87,8 +88,12 @@ class TeacherActivity : AppCompatActivity() {
     private fun studentsOptionClicked() {
         startActivity(Intent(this@TeacherActivity,StudentsActivity::class.java))
     }
-    private fun handleDatePicked(){
-        TODO("Not yet implemented")
+    private fun handleDatePicked(datetime: Calendar) {
+       val date=SimpleDateFormat(DATE_PATTERN).format(datetime.time)
+        val intentToDateActivity=Intent(this@TeacherActivity,DateActivity::class.java)
+        state.addValue("selected_date",date)
+        startActivity(intentToDateActivity)
+
     }
 
     private fun getListViewIcons(){
