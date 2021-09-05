@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.fragment_student_attendance.*
 class TakeAttendanceActivity : AppCompatActivity() {
     private lateinit var studentAttendanceFragment: StudentAttendanceFragment
     private lateinit var state: Store
-    private val db= Firebase.firestore
+    private val db= FireBaseUtils().db
     private var studentsNameArray = mutableListOf<String>()
     private val studentsAttendance = mutableListOf<Boolean>()
 
@@ -76,9 +76,6 @@ class TakeAttendanceActivity : AppCompatActivity() {
           .addOnCanceledListener{
               Toast.makeText(applicationContext,"Failed", Toast.LENGTH_SHORT).show()
           }
-
-
-
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -89,14 +86,18 @@ class TakeAttendanceActivity : AppCompatActivity() {
     }
 
     private fun onSaveButtonClick() {
-        val dataToBeSent=studentAttendanceFragment.getStudentsAttendance()
+
         val className=state getStringValue "class"
         val todayDate=state getStringValue "today_date"
         val term=state getStringValue "term"
-        db.collection("${Constants.DATES_COLLECTION_PATH}/${term}/${todayDate}/")
-            .document(className)
+        val dataToBeSent=mapOf(
+           className to studentAttendanceFragment.getStudentsAttendance()
+        )
+        db.collection("${Constants.DATES_COLLECTION_PATH}/${term}/")
+            .document(todayDate)
             .set(dataToBeSent)
-        dataToBeSent.forEach { (name, attendance) ->
+
+        dataToBeSent[className]?.forEach { (name, attendance) ->
             val studentAttendanceDoc=db.collection("${Constants.CLASSES_COLLECTION_PATH}/${className}/${Constants.STUDENTS_COLLECTION_PATH}/").document(name)
             if(attendance){
                 studentAttendanceDoc.update(

@@ -8,6 +8,7 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.getField
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_date.*
 
@@ -18,7 +19,8 @@ class DateActivity : AppCompatActivity() {
     lateinit var docRef: DocumentReference
     var classAttendanceMap: MutableMap<String, Boolean> = mutableMapOf()
     var studentNamesOrdered= listOf<String>()
-    val db = Firebase.firestore
+    val db =FireBaseUtils().db
+
     val TAG: String = "DateActivityDocument"
 
 
@@ -97,13 +99,13 @@ class DateActivity : AppCompatActivity() {
         var unOrderedClassAttendance=mapOf<String,Boolean>()
         val className = state getStringValue "class"
         val term = state getStringValue "term"
-        docRef = db.collection("${Constants.DATES_COLLECTION_PATH}/${term}/${date}/")
-            .document(className)
+        docRef = db.collection("${Constants.DATES_COLLECTION_PATH}/${term}/")
+            .document(date)
         docRef.get()
             .addOnSuccessListener { document ->
                 if(document.exists() && document.data.isNullOrEmpty()) {
                     unOrderedClassAttendance =
-                        (document.data?.toMap() ?: mapOf()) as Map<String, Boolean>
+                        document.get(className)  as Map<String,Boolean>
                     getOrderClassAttendance(unOrderedClassAttendance)
                     Log.d(TAG,unOrderedClassAttendance.toString())
                 }

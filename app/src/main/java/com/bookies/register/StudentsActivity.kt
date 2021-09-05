@@ -22,7 +22,7 @@ class StudentsActivity : AppCompatActivity() {
     lateinit var arrayAdapterForStudentsName: ArrayAdapter<String>
     lateinit var state: Store
     lateinit var className: String
-    val db = Firebase.firestore
+    val db = FireBaseUtils().db
     private val TAG = "StudentsActivityDocument"
     private var studentsNameArray = listOf<String>()
     override fun onCreate(savedInstanceState: Bundle?) {

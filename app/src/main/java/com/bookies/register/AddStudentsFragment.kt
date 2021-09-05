@@ -22,7 +22,7 @@ private const val STUDENT_NAMES = "STUDENT_NAMES_FOR_EDITING"
 
 class AddStudentsFragment : Fragment() {
     private var studentNames: Array<String>? = null
-    val db = Firebase.firestore
+    val db = FireBaseUtils().db
     private var DOCUMENT_NAME: String = "JSS1A"
     lateinit var studentNamesRecyclerViewAdapter: StudentNamesRecyclerViewAdapter
     lateinit var addButton: Button

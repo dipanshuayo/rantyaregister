@@ -74,4 +74,5 @@
     <string name="add">add</string>
     <string name="save_changes">Save Changes</string>
     <string name="add_students">Add students</string>
+    <string name="offline_message">your are offline or have poor network</string>
 </resources>

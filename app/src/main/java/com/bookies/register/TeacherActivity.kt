@@ -54,7 +54,8 @@ class TeacherActivity : AppCompatActivity() {
         TODO("Not yet implemented")
     }
     private fun handleOnLogOutClicked() {
-        TODO("Not yet implemented")
+        state.addValue("login",false)
+        startActivity(Intent(this@TeacherActivity,SplashActivity::class.java))
     }
     private fun setOnClickListenerOnListView(){
         options_list_view.setOnItemClickListener { _, _, position, _ ->
