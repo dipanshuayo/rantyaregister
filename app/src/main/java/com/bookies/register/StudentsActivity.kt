@@ -22,6 +22,7 @@ class StudentsActivity : AppCompatActivity() {
     lateinit var arrayAdapterForStudentsName: ArrayAdapter<String>
     lateinit var state: Store
     lateinit var className: String
+    lateinit var progress: ProgressCircle
     val db = FireBaseUtils().db
     private val TAG = "StudentsActivityDocument"
     private var studentsNameArray = listOf<String>()
@@ -29,7 +30,9 @@ class StudentsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_students)
         state = Store(applicationContext)
+        progress = ProgressCircle(this@StudentsActivity)
         className = state getStringValue "class"
+        //the rest of the code check the db calls
         getStudentsName()
 
     }
@@ -41,18 +44,35 @@ class StudentsActivity : AppCompatActivity() {
                 true
             }
     }
+
     private fun handleOnLongClick(name: String) {
         deleteStudent(name)
     }
+
     private fun deleteStudent(name: String) {
         val classDoc = db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
-        classDoc.update(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME, FieldValue.arrayRemove(name)).addOnSuccessListener {
-            arrayAdapterForStudentsName.remove(name)
-        }
-        deleteStudentFromCollection(classDoc,name)
+        classDoc.update(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME, FieldValue.arrayRemove(name))
+            .addOnSuccessListener {
+                arrayAdapterForStudentsName.remove(name)
+            }.addOnFailureListener {
+                Toast.makeText(
+                    applicationContext,
+                    R.string.failed_class_code_verification,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        deleteStudentFromCollection(classDoc, name)
     }
-    private fun deleteStudentFromCollection(classDoc:DocumentReference,name:String){
+
+    private fun deleteStudentFromCollection(classDoc: DocumentReference, name: String) {
         classDoc.collection(Constants.STUDENTS_COLLECTION_PATH).document(name).delete()
+            .addOnFailureListener {
+                Toast.makeText(
+                    applicationContext,
+                    R.string.failed_class_code_verification,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
     }
 
 
@@ -75,22 +95,29 @@ class StudentsActivity : AppCompatActivity() {
             positiveButton(res = R.string.add) {
                 addStudent(addLatestRollNumberToName(it.getInputField().text.toString()))
             }
-            noAutoDismiss()
-            negativeButton(res = R.string.help_dialog_positive_button_text){
+            cancelOnTouchOutside(false)
+            negativeButton(res = R.string.help_dialog_positive_button_text) {
                 dismiss()
             }
-            
+
         }
     }
 
     private fun addStudent(name: String) {
         val classDoc = db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
 
-        classDoc.update(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME, FieldValue.arrayUnion(name)).addOnSuccessListener {
-            arrayAdapterForStudentsName.add(name)
+        classDoc.update(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME, FieldValue.arrayUnion(name))
+            .addOnSuccessListener {
+                arrayAdapterForStudentsName.add(name)
 
-            makeStudentsSubCollection(classDoc,name)
-        }
+                makeStudentsSubCollection(classDoc, name)
+            }.addOnFailureListener {
+                Toast.makeText(
+                    applicationContext,
+                    R.string.failed_class_code_verification,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
 
     }
 
@@ -99,8 +126,8 @@ class StudentsActivity : AppCompatActivity() {
     }
 
     private fun makeStudentsSubCollection(document: DocumentReference, addedName: String) {
-        val dataToBeSent=mapOf(
-            state getStringValue "term" to mapOf<String,List<String>>(
+        val dataToBeSent = mapOf(
+            state getStringValue "term" to mapOf<String, List<String>>(
                 "dates_present" to listOf<String>(),
                 "dates_absent" to listOf<String>()
             )
@@ -123,6 +150,7 @@ class StudentsActivity : AppCompatActivity() {
 
 
     private fun getStudentsName() {
+        progress.show()
         val className = state getStringValue "class"
         db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
             .get()
@@ -135,12 +163,16 @@ class StudentsActivity : AppCompatActivity() {
                     addArrayAdapterToListView()
                     setOnClickListenerToListView()
                     setOnHoldClickListenerToListView()
+                    progress.dismiss()
 
                 }
             }
             .addOnCanceledListener {
+                progress.dismiss()
                 Toast.makeText(applicationContext, "Failed", Toast.LENGTH_SHORT).show()
+                FireBaseUtils.gotoTeacherActivity(this@StudentsActivity)
             }
+
     }
 
     private fun setOnClickListenerToListView() {
@@ -153,31 +185,40 @@ class StudentsActivity : AppCompatActivity() {
         val studentName = studentsNameArray[position]
         createFinalDialog(studentName)
     }
-    private fun makeDialog(studentName:String,message:String){
+
+    private fun makeDialog(studentName: String, message: String) {
         MaterialDialog(this@StudentsActivity).show {
             title(text = studentName)
             message(text = message)
             positiveButton(res = R.string.help_dialog_positive_button_text)
         }
     }
-    private fun createFinalDialog(studentName: String){
-        val term=state getStringValue "term"
+
+    private fun createFinalDialog(studentName: String) {
+        progress.show()
+        val term = state getStringValue "term"
         val docRef =
             db.collection("${Constants.CLASSES_COLLECTION_PATH}/${className}/${Constants.STUDENTS_COLLECTION_PATH}")
                 .document(studentName)
         docRef.get().addOnSuccessListener { document ->
             val numberOfDatesPresent = document.get("${term}.dates_present") as List<String>
             val numberOfDatesAbsent = document.get("${term}.dates_absent") as List<String>
-            val message=createStudentAttendanceHistoryText(numberOfDatesPresent.size,numberOfDatesAbsent.size)
-            makeDialog(studentName,message)
-            Log.d(TAG,"absent-${numberOfDatesAbsent}present-${numberOfDatesPresent}")
+            val message = createStudentAttendanceHistoryText(
+                numberOfDatesPresent.size,
+                numberOfDatesAbsent.size
+            )
+            progress.dismiss()
+            makeDialog(studentName, message)
+            Log.d(TAG, "absent-${numberOfDatesAbsent}present-${numberOfDatesPresent}")
             Toast.makeText(applicationContext, "got the dates", Toast.LENGTH_SHORT).show()
         }
             .addOnFailureListener {
+                progress.dismiss()
                 Toast.makeText(applicationContext, "Failed", Toast.LENGTH_SHORT).show()
             }
 
     }
+
     private fun createStudentAttendanceHistoryText(
         NumberOfPresentDates: Int,
         NumberOfAbsentDates: Int,
@@ -187,9 +228,11 @@ class StudentsActivity : AppCompatActivity() {
                 "Total number of days:${NumberOfAbsentDates + NumberOfPresentDates}"
 
     }
+
     private fun addArrayAdapterToListView() {
         students_list_view.adapter = arrayAdapterForStudentsName
     }
+
     private fun initializeArrayAdapter() {
         arrayAdapterForStudentsName = ArrayAdapter(
             this@StudentsActivity,

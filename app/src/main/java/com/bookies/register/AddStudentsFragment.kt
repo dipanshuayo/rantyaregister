@@ -28,9 +28,9 @@ class AddStudentsFragment : Fragment() {
     lateinit var addButton: Button
     lateinit var saveButton: Button
     lateinit var state: Store
+    lateinit var progress: ProgressCircle
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         arguments?.let {
             studentNames = it.getStringArray(STUDENT_NAMES)
 
@@ -42,6 +42,7 @@ class AddStudentsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         state = activity?.let { Store(it.applicationContext) }!!
+        progress = activity?.let { ProgressCircle(it) }!!
         val addStudentFragmentView =
             inflater.inflate(R.layout.fragment_add_students, container, false)
         setUpRecyclerView(addStudentFragmentView)
@@ -53,7 +54,7 @@ class AddStudentsFragment : Fragment() {
 
     private fun setUpSaveButton(addStudentFragmentView: View) {
         saveButton = addStudentFragmentView.findViewById(R.id.save_student_name_button)
-       //saveButton.isEnabled = studentNames?.size != 0
+        //saveButton.isEnabled = studentNames?.size != 0
         saveButton.setOnClickListener {
             handleSaveButton()
         }
@@ -61,6 +62,7 @@ class AddStudentsFragment : Fragment() {
     }
 
     private fun handleSaveButton() {
+        progress.show()
         var addedNames: MutableList<String> = mutableListOf()
         var deletedNames: MutableList<String> = mutableListOf()
         if (studentNames?.size == 0) {
@@ -74,7 +76,10 @@ class AddStudentsFragment : Fragment() {
         if (deletedNames.isNotEmpty()) {
             sendDeletedNames(deletedNames)
         }
-
+        if (addedNames.isEmpty()) {
+            Toast.makeText(activity, "You have not added any student name", Toast.LENGTH_LONG)
+                .show()
+        }
     }
 
     private fun sendAddedNames(addedNames: MutableList<String>) {
@@ -82,51 +87,64 @@ class AddStudentsFragment : Fragment() {
             "names" to attachLatestRoleNumber(addedNames)
         )
         DOCUMENT_NAME = state getStringValue "class"
-        val studentNamesDocument = db.collection(Constants.CLASSES_COLLECTION_PATH).document(DOCUMENT_NAME)
+        val studentNamesDocument =
+            db.collection(Constants.CLASSES_COLLECTION_PATH).document(DOCUMENT_NAME)
         if (studentNames.isNullOrEmpty()) {
             studentNamesDocument
                 .set(dataToSend)
                 .addOnSuccessListener {
-                    state.addValue("isStudentNameAdded",true)
+                    state.addValue("isStudentNameAdded", true)
                     dataToSend["names"]?.toMutableList()?.let { it1 ->
-                        makeStudentsSubCollection(studentNamesDocument,
+                        makeStudentsSubCollection(
+                            studentNamesDocument,
                             it1
                         )
                     }
-
+                    progress.dismiss()
                     Toast.makeText(activity, "Students name saved", Toast.LENGTH_LONG).show()
                 }
                 .addOnFailureListener {
-                    Toast.makeText(activity, "Students name failed to save", Toast.LENGTH_LONG)
+                    progress.dismiss()
+                    Toast.makeText(
+                        activity,
+                        "Students name failed to save. You don\'t have network or data",
+                        Toast.LENGTH_LONG
+                    )
                         .show()
                 }
 
         } else {
+            //sends a new name list to db
             studentNamesDocument.update(
                 "names",
                 FieldValue.arrayUnion(*arrayOf(dataToSend["names"]))
-            )
+            ).addOnSuccessListener {
+                progress.dismiss()
+            }
         }
 
 
     }
 
-    private fun makeStudentsSubCollection(document: DocumentReference, addedNames: MutableList<String>) {
-        val dataToBeSent=mapOf(
-            state getStringValue "term" to mapOf<String,List<String>>(
+    private fun makeStudentsSubCollection(
+        document: DocumentReference,
+        addedNames: MutableList<String>
+    ) {
+        val dataToBeSent = mapOf(
+            state getStringValue "term" to mapOf<String, List<String>>(
                 "dates_present" to listOf<String>(),
                 "dates_absent" to listOf<String>()
             )
 
         )
-        addedNames.forEach { id->
+        addedNames.forEach { id ->
             document.collection(Constants.STUDENTS_COLLECTION_PATH).document(id)
                 .set(dataToBeSent)
                 .addOnSuccessListener {
-                    Toast.makeText(activity,"Saving of students done",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, "Saving of students done", Toast.LENGTH_SHORT).show()
                 }
                 .addOnFailureListener {
-                    Toast.makeText(activity,"Saving of students failed",Toast.LENGTH_LONG).show()
+                    Toast.makeText(activity, "Saving of students failed", Toast.LENGTH_LONG).show()
                 }
         }
 
