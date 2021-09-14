@@ -28,6 +28,7 @@ class TakeAttendanceActivity : AppCompatActivity() {
         state = Store(applicationContext)
         progress = ProgressCircle(this@TakeAttendanceActivity)
         if (state getBooleanValue "isStudentNameAdded") {
+            save_attendance_button.visibility=View.VISIBLE
             getStudentsName()
 
         } else {

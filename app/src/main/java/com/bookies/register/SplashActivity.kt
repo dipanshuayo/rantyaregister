@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.afollestad.materialdialogs.DialogBehavior
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
 import com.google.firebase.firestore.DocumentSnapshot
@@ -68,6 +69,7 @@ class SplashActivity : AppCompatActivity() {
             cancelOnTouchOutside(true)
             positiveButton(R.string.login_dialog_postive_button_text)
         }
+
     }
 
     private fun handleLogin(classCode: String) {

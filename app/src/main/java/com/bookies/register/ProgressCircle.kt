@@ -28,7 +28,7 @@ class ProgressCircle(val context: Context) {
         val progessView = LayoutInflater.from(context).inflate(R.layout.progess_dialog_view, null)
         alertDialog = AlertDialog.Builder(context)
             .setView(progessView)
-
+            .setCancelable(false)
             .create()
         alertDialog.setCanceledOnTouchOutside(false)
 
