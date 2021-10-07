@@ -134,6 +134,9 @@ class SplashActivity : AppCompatActivity() {
 
     private fun makeIntentToTeacherActivity() {
         progress.dismiss()
-        startActivity(Intent(this@SplashActivity, TeacherActivity::class.java))
+        startActivity(
+            Intent(this@SplashActivity, TeacherActivity::class.java)
+        )
+        finish()
     }
 }

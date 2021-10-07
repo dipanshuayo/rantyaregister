@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.datetime.datePicker
 import kotlinx.android.synthetic.main.activity_teacher.*
@@ -24,12 +25,20 @@ class TeacherActivity : AppCompatActivity() {
         state = Store(applicationContext)
         setAcademicTerm()
         getTodayDate()
+        setClassNameOnToolBar()
         getListViewIcons()
         createOptionsList()
         createOptionsListView()
         setOnClickListenerOnListView()
     }
-
+    private fun setClassNameOnToolBar(){
+        if(supportActionBar!=null){
+            supportActionBar?.title=state getStringValue "class"
+        }
+        else{
+            Toast.makeText(this@TeacherActivity,"No action bar",Toast.LENGTH_SHORT).show()
+        }
+    }
     private fun setAcademicTerm() {
         state.addValue("term", "first_term")
     }
@@ -54,6 +63,8 @@ class TeacherActivity : AppCompatActivity() {
         }
         return true
     }
+
+
 
     private fun handleOnAboutAppClicked() {
 

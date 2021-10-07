@@ -14,6 +14,13 @@
             android:id="@+id/student_change_attendance_fragment_holder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
+        <ProgressBar
+            android:id="@+id/save_changes_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            tools:visibility="visible"
+            />
         <Button
             android:id="@+id/save_changes_attendance_button"
             android:layout_width="match_parent"

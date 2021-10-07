@@ -2,9 +2,13 @@ package com.bookies.register
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
+import android.view.KeyEvent
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Toast
 
 class ProgressCircle(val context: Context) {
@@ -15,6 +19,7 @@ class ProgressCircle(val context: Context) {
     }
 
     fun show() {
+        dismiss()
         alertDialog.show()
 
     }
@@ -28,9 +33,22 @@ class ProgressCircle(val context: Context) {
         val progessView = LayoutInflater.from(context).inflate(R.layout.progess_dialog_view, null)
         alertDialog = AlertDialog.Builder(context)
             .setView(progessView)
+            .setOnKeyListener { dialog, keyCode, event ->
+                if(keyCode==KeyEvent.KEYCODE_BACK && event.action==KeyEvent.ACTION_UP){
+                    dialog.cancel()
+                    onClose(TeacherActivity::class.java)
+                    return@setOnKeyListener true
+                }
+                return@setOnKeyListener false
+            }
             .setCancelable(false)
+
             .create()
-        alertDialog.setCanceledOnTouchOutside(false)
+
+
+
+        alertDialog
+            .setCanceledOnTouchOutside(false)
 
     }
 
@@ -39,6 +57,7 @@ class ProgressCircle(val context: Context) {
         context.startActivity(
             Intent(context, java)
         )
+
 
     }
 }

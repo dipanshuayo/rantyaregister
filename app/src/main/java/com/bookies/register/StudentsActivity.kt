@@ -1,14 +1,19 @@
 package com.bookies.register
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.core.text.toSpanned
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.getInputField
 import com.afollestad.materialdialogs.input.input
@@ -17,6 +22,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_students.*
+import org.w3c.dom.Text
 
 class StudentsActivity : AppCompatActivity() {
     lateinit var arrayAdapterForStudentsName: ArrayAdapter<String>
@@ -46,33 +52,61 @@ class StudentsActivity : AppCompatActivity() {
     }
 
     private fun handleOnLongClick(name: String) {
-        deleteStudent(name)
+//        deleteStudent(name)
+        makeOnLongClickDeleteDialog(name)
     }
-
+    private fun makeOnLongClickDeleteDialog(name:String){
+        MaterialDialog(this@StudentsActivity).show {
+            title(
+               text = setColorToText(
+                   "Student $name is about to be deleted",
+                   Color.RED
+               ).toString()
+            )
+            message(
+               text= "Once you delete a student it can\'t be undo"
+            )
+            positiveButton(text ="Delete"){
+                deleteStudent(name)
+            }
+        }
+    }
+    private fun setColorToText(text: String, color:Int): SpannableString {
+        val spannableString=SpannableString(text)
+        spannableString.setSpan(ForegroundColorSpan(color),0,text.length-1,0)
+       return spannableString
+    }
     private fun deleteStudent(name: String) {
+        progress.show()
         val classDoc = db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
         classDoc.update(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME, FieldValue.arrayRemove(name))
             .addOnSuccessListener {
                 arrayAdapterForStudentsName.remove(name)
+
+                deleteStudentFromCollection(classDoc, name)
             }.addOnFailureListener {
+                progress.dismiss()
                 Toast.makeText(
                     applicationContext,
-                    R.string.failed_class_code_verification,
+                    R.string.failed,
                     Toast.LENGTH_SHORT
                 ).show()
             }
-        deleteStudentFromCollection(classDoc, name)
+
     }
+
+
 
     private fun deleteStudentFromCollection(classDoc: DocumentReference, name: String) {
         classDoc.collection(Constants.STUDENTS_COLLECTION_PATH).document(name).delete()
             .addOnFailureListener {
                 Toast.makeText(
                     applicationContext,
-                    R.string.failed_class_code_verification,
+                    R.string.failed,
                     Toast.LENGTH_SHORT
                 ).show()
             }
+        progress.dismiss()
     }
 
 
@@ -104,6 +138,7 @@ class StudentsActivity : AppCompatActivity() {
     }
 
     private fun addStudent(name: String) {
+        progress.show()
         val classDoc = db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
 
         classDoc.update(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME, FieldValue.arrayUnion(name))
@@ -137,6 +172,7 @@ class StudentsActivity : AppCompatActivity() {
         document.collection("students").document(addedName)
             .set(dataToBeSent)
             .addOnSuccessListener {
+                progress.dismiss()
                 Toast.makeText(applicationContext, "Saving of students done", Toast.LENGTH_SHORT)
                     .show()
             }
@@ -155,10 +191,13 @@ class StudentsActivity : AppCompatActivity() {
         db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
             .get()
             .addOnSuccessListener { document ->
-                if (document !== null) {
+                if (document.contains(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME)) {
                     studentsNameArray =
                         document.get(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME) as List<String>
                     Log.d(TAG, studentsNameArray.toString())
+                    if(studentsNameArray.isNullOrEmpty()){
+                        Toast.makeText(baseContext,R.string.no_student,Toast.LENGTH_LONG).show()
+                    }
                     initializeArrayAdapter()
                     addArrayAdapterToListView()
                     setOnClickListenerToListView()

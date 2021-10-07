@@ -27,18 +27,12 @@ class TakeAttendanceActivity : AppCompatActivity() {
         setContentView(R.layout.activity_take_attendance)
         state = Store(applicationContext)
         progress = ProgressCircle(this@TakeAttendanceActivity)
-        if (state getBooleanValue "isStudentNameAdded") {
-            save_attendance_button.visibility=View.VISIBLE
-            getStudentsName()
-
-        } else {
-            save_attendance_button.visibility= View.GONE
-            createAddStudents()
-        }
+        getStudentsName()
 
     }
 
     private fun createAddStudents() {
+        save_attendance_button.visibility= View.GONE
         supportFragmentManager
             .beginTransaction()
             .add(
@@ -64,15 +58,20 @@ class TakeAttendanceActivity : AppCompatActivity() {
         db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
             .get()
             .addOnSuccessListener { document ->
-                if (document !== null) {
-                    studentsNameArray =
-                        document.get(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME) as MutableList<String>
-                    setAttendances()
-                    createStudentAttendance()
-                    setSaveButtonOnClickListener()
-                    Log.d(TAG, studentsNameArray.toString())
+
+                    if(!document.contains(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME)){
+                        createAddStudents()
+                    }
+                else {
+                        studentsNameArray =
+                            document.get(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME) as MutableList<String>
+                        setAttendances()
+                        createStudentAttendance()
+                        setSaveButtonOnClickListener()
+                        Log.d(TAG, studentsNameArray.toString())
+                    }
                     progress.dismiss()
-                }
+
             }
             .addOnCanceledListener {
                 progress.dismiss()

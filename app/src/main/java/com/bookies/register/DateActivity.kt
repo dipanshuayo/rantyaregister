@@ -3,7 +3,11 @@ package com.bookies.register
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
+import com.afollestad.materialdialogs.utils.MDUtil.isLandscape
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
@@ -11,6 +15,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.getField
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_date.*
+import kotlinx.android.synthetic.main.activity_take_attendance.*
 
 class DateActivity : AppCompatActivity() {
     private lateinit var studentChangedAttendanceFragment: StudentAttendanceFragment
@@ -18,7 +23,10 @@ class DateActivity : AppCompatActivity() {
     lateinit var state: Store
     lateinit var progress: ProgressCircle
     lateinit var docRef: DocumentReference
+    lateinit var className:String
+    lateinit var term:String
     var classAttendanceMap: MutableMap<String, Boolean> = mutableMapOf()
+    var changedAttendanceMap: MutableMap<String, Boolean> = mutableMapOf()
     var studentNamesOrdered = listOf<String>()
     val db = FireBaseUtils().db
     val TAG: String = "DateActivityDocument"
@@ -29,24 +37,58 @@ class DateActivity : AppCompatActivity() {
         setContentView(R.layout.activity_date)
         state = Store(applicationContext)
         progress = ProgressCircle(this@DateActivity)
+        //sets className from state
+        setClassName()
+        //set term from state
+        setTerm()
         //gets the date from date picker
         setDate()
         //gets the class attendance in proper order
         getClassAttendanceMap()
         //attached the db class and other properties
         setUpSaveChangesButton()
+        //set progress bar at the end so that it can overlap the fragment
     }
 
+    private fun setTerm() {
+        term=state.getStringValue("term")
+    }
+
+    private fun setClassName() {
+        className=state.getStringValue("class")
+    }
+
+    private fun onFailure(res:Int=R.string.failed,progressDisable:Boolean=true){
+        if(progressDisable) {
+            progress.dismiss()
+        }
+        Toast.makeText(
+            applicationContext,
+            res,
+            Toast.LENGTH_SHORT
+        ).show()
+
+    }
     private fun setUpSaveChangesButton() {
         save_changes_attendance_button.setOnClickListener {
+            save_changes_attendance_button.isEnabled=false
             handleSaveChangesButton()
+
         }
     }
-
+    private fun saveChangesProgressShow(){
+        Log.d(TAG,"show progress")
+        save_changes_progress.visibility= View.VISIBLE
+    }
+    private fun saveChangesProgressDismiss(){
+        save_changes_progress.visibility= View.INVISIBLE
+    }
     private fun handleSaveChangesButton() {
-        progress.show()
-        val newClassAttendance = studentChangedAttendanceFragment.getStudentsAttendance()
-        if (isAttendanceChanged(newClassAttendance)) {
+       progress.show()
+       saveChangesProgressShow()
+        changedAttendanceMap = studentChangedAttendanceFragment.getStudentsAttendance()
+        Log.d(TAG,"students attedance ${changedAttendanceMap}")
+        if (changedAttendanceMap.isNotEmpty()) {
             sendChangedAttendance()
         } else {
             progress.dismiss()
@@ -55,26 +97,33 @@ class DateActivity : AppCompatActivity() {
     }
 
     private fun sendChangedAttendance() {
-        val term = state getStringValue "term"
-        val dataToBeSent = mapOf(
-        term to   studentChangedAttendanceFragment.getStudentsAttendance()
-        )
-        docRef.set(dataToBeSent, SetOptions.merge()).addOnFailureListener {
-            Toast.makeText(
-                applicationContext,
-                R.string.failed_class_code_verification,
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-        dataToBeSent[term]?.let { updateStudentsAttendance(it) }
-    }
 
-    private fun updateStudentsAttendance(dataToBeSent: MutableMap<String, Boolean>) {
-        val className = state getStringValue "class"
-        val term = state getStringValue "term"
-        dataToBeSent.forEach { (name, attendance) ->
-            val studentAttendanceDoc =
-                db.collection("${Constants.CLASSES_COLLECTION_PATH}/${className}/${Constants.STUDENTS_COLLECTION_PATH}/")
+        Log.d(TAG,"student Attendance is ${changedAttendanceMap}")
+        progress.show()
+        changedAttendanceMap.keys.forEach { name->
+            val booleanValue:Boolean = changedAttendanceMap[name] == true
+
+            db.runBatch { batch->
+                batch.set(docRef,  mapOf(
+                    className to mapOf<String,Boolean>(name to booleanValue )
+                ), SetOptions.merge())
+            }.addOnCompleteListener {
+                updateStudentsAttendance(name,booleanValue)
+            }.addOnCompleteListener {
+                Toast.makeText(applicationContext, "please work", Toast.LENGTH_SHORT).show()
+                progress.dismiss()
+            }
+
+        }
+
+//        docRef.set(dataToBeSent, SetOptions.merge()).addOnFailureListener {
+//           onFailure()
+//        }
+        //dataToBeSent[className]?.let { updateStudentsAttendance(it) }
+
+    }
+    private  fun updateStudentsAttendance(name:String,attendance:Boolean){
+            val studentAttendanceDoc = db.collection("${Constants.CLASSES_COLLECTION_PATH}/${className}/${Constants.STUDENTS_COLLECTION_PATH}/")
                     .document(name)
             if (attendance) {
                 //removes the date from date_absent
@@ -83,12 +132,9 @@ class DateActivity : AppCompatActivity() {
                 studentAttendanceDoc.update(
                     "${term}.dates_present",
                     FieldValue.arrayUnion(date)
-                ).addOnFailureListener {
-                    Toast.makeText(
-                        applicationContext,
-                        R.string.failed_class_code_verification,
-                        Toast.LENGTH_SHORT
-                    ).show()
+                )
+                    .addOnFailureListener {
+                   onFailure()
                 }
             } else {
                 //removes the date from date_absent
@@ -98,14 +144,13 @@ class DateActivity : AppCompatActivity() {
                     "${term}.dates_absent",
                     FieldValue.arrayUnion(date)
                 ).addOnFailureListener {
-                    Toast.makeText(
-                        applicationContext,
-                        R.string.failed_class_code_verification,
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    onFailure()
                 }
             }
-        }
+
+
+        save_changes_attendance_button.isEnabled=true
+        saveChangesProgressDismiss()
         progress.dismiss()
     }
 
@@ -113,16 +158,14 @@ class DateActivity : AppCompatActivity() {
         studentAttendanceDoc.update(
             from,
             FieldValue.arrayRemove(date)
+
         ).addOnFailureListener {
-            Toast.makeText(
-                applicationContext,
-                R.string.failed_class_code_verification,
-                Toast.LENGTH_SHORT
-            ).show()
+
+           onFailure()
         }
     }
 
-    private fun isAttendanceChanged(newClassAttendance: MutableMap<String, Boolean>): Boolean {
+    /*private fun isAttendanceChanged(newClassAttendance: MutableMap<String, Boolean>): Boolean {
         val booleanList = mutableListOf<Boolean>()
         classAttendanceMap.keys.forEach { name ->
             booleanList.add(
@@ -130,20 +173,17 @@ class DateActivity : AppCompatActivity() {
             )
         }
         return booleanList.contains(false)
-    }
+    }*/
 
 
     private fun getClassAttendanceMap() {
         progress.show()
-        var unOrderedClassAttendance = mapOf<String, Boolean>()
-        val className = state getStringValue "class"
-        val term = state getStringValue "term"
-        docRef = db.collection(term)
-            .document(date)
+        docRef = db.collection(term).document(date)
         docRef.get()
             .addOnSuccessListener { document ->
-                if (document.exists() && !document.data.isNullOrEmpty()) {
-                    unOrderedClassAttendance =
+                progress.dismiss()
+                if (document.exists() && !document.data.isNullOrEmpty() && document.contains(className)) {
+                   val unOrderedClassAttendance :Map<String,Boolean> =
                         document.get(className) as Map<String, Boolean>
                     //sets class attendance in order
                     getOrderClassAttendance(unOrderedClassAttendance)
@@ -154,15 +194,12 @@ class DateActivity : AppCompatActivity() {
                 }
 
             }
-            .addOnFailureListener { exception ->
-                Toast.makeText(applicationContext, "Failed", Toast.LENGTH_SHORT).show()
-                Log.d(TAG, exception.toString())
+            .addOnFailureListener {
+               onFailure()
             }
-
     }
 
     private fun createNewClassMap() {
-        val className = state getStringValue "class"
         db.document("${Constants.CLASSES_COLLECTION_PATH}/${className}")
             .get()
             .addOnSuccessListener { document ->
@@ -174,23 +211,18 @@ class DateActivity : AppCompatActivity() {
                 makeFragment()
             }
             .addOnFailureListener {
-                Toast.makeText(
-                    applicationContext,
-                    R.string.failed_class_code_verification,
-                    Toast.LENGTH_SHORT
-                ).show()
+                onFailure()
             }
     }
 
     private fun classAttendanceSetToFalse(studentNamesOrdered: List<String>) {
         studentNamesOrdered.forEach { name ->
-            classAttendanceMap.put(name, false)
+            classAttendanceMap[name]= false
         }
 
     }
 
     private fun getOrderClassAttendance(unOrderedClassAttendance: Map<String, Boolean>) {
-        val className = state getStringValue "class"
         db.document("${Constants.CLASSES_COLLECTION_PATH}/${className}")
             .get()
             .addOnSuccessListener { document ->
@@ -200,11 +232,7 @@ class DateActivity : AppCompatActivity() {
                 progress.dismiss()
                 makeFragment()
             }.addOnFailureListener {
-                Toast.makeText(
-                    applicationContext,
-                    R.string.failed_class_code_verification,
-                    Toast.LENGTH_SHORT
-                ).show()
+              onFailure()
             }
     }
 
@@ -221,8 +249,8 @@ class DateActivity : AppCompatActivity() {
 
     private fun setDate() {
         date = state.getStringValue("selected_date")
-    }
-
+       supportActionBar?.title=date
+}
     private fun makeFragment() {
         studentChangedAttendanceFragment =
             StudentAttendanceFragment.newInstance(

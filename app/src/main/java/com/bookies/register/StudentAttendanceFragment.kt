@@ -1,6 +1,7 @@
 package com.bookies.register
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,8 +11,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "STUDENT_NAMES"
 private const val ARG_PARAM2 = "STUDENT_ATTENDANCE"
 private  const val ARG_PARAM3= "TYPE_OF_ACTION"
@@ -22,7 +21,7 @@ private  const val ARG_PARAM3= "TYPE_OF_ACTION"
  * create an instance of this fragment.
  */
 class StudentAttendanceFragment : Fragment() {
-    // TODO: Rename and change types of parameters
+    private val TAG="StudentAttendanceFragment"
     private var studentNames: Array<String>? = null
     private var studentAttendances: BooleanArray? = null
     private var typeOfAction:String?=null
@@ -70,6 +69,8 @@ class StudentAttendanceFragment : Fragment() {
         parentLinearLayout.children.forEachIndexed {index,studentAttendanceRow->
             val studentAttendanceRowLinearLayout=studentAttendanceRow as LinearLayout
             val checkBox= studentAttendanceRowLinearLayout.get(1) as CheckBox
+            Log.d(TAG,"student attendance at the index is ${studentAttendances?.get(index)}")
+            Log.d(TAG,"Boolean value for if statement is ${studentAttendances?.get(index) == true}")
             if(checkBoxChanged(checkBox.isChecked, studentAttendances?.get(index) == true)){
                 changedAttendanceListView.add(studentAttendanceRowLinearLayout)
             }

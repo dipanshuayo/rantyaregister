@@ -44,6 +44,12 @@
         <item>
             How to check attendance of a particular student?
         </item>
+        <item>
+            How to add a student?
+        </item>
+        <item>
+            How to delete a student?
+        </item>
     </string-array>
     <string-array name="help_options_descriptions_for_list_view">
         <item>
@@ -54,16 +60,42 @@
             4.Click on save.\n
         </item>
         <item>
-            Test
+            1.Type your class code to login in on the starting screen. If you have skip this step.\n
+            2.Go to the \"Dates\" option and click it.\n
+            3.A dialog will appear where you can select your date.\n
+            4.After selecting the date you click \"ok\".\n
+            5.Then you will see a check box with the student names which you can view.\n
+            note:You can\'t set attendance of a future date.\n
         </item>
         <item>
-            Test
+            1.Type your class code to login in on the starting screen. If you have skip this step.\n
+            2.Go to the \"Dates\" option and click it.\n
+            3.A dialog will appear where you can select your date.\n
+            4.After selecting the date you click \"ok\".\n
+            5.Then you will see a check box with the student names which you can change by clicking it.\n
+            6.Then click on save changes.\n
+            note:You can\'t set attendance of a future date.\n
         </item>
         <item>
-            test
+             1.Type your class code to login in on the starting screen. If you have skip this step.\n
+             2.Go to the \"Students\" option and click it.\n
+             3.Then you will see your student\'s list,click on any student name of your choice.\n
+             4.Then you will see a dialog which will show you all the students attendance history.\n
+        </item>
+        <item>
+             1.Type your class code to login in on the starting screen. If you have skip this step.\n
+             2.Go to the \"Students\" option and click it.\n
+             3.Then click on the \"&#8942;\" on the top right conner\n
+             4.Then a dialog will appear where you can type the student name\n
+        </item>
+        <item>
+            1.Type your class code to login in on the starting screen. If you have skip this step.\n
+            2.Go to the \"Students\" option and click it.\n
+            3.To delete a student you have to long press on it and then a dialog will appear \n
+            4.Click on the \"delete\" option to delete student\n
+
         </item>
     </string-array>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="save">Save</string>
     <string name="failed_class_code_verification">This class code does not exist</string>
@@ -75,4 +107,6 @@
     <string name="save_changes">Save Changes</string>
     <string name="add_students">Add students</string>
     <string name="offline_message">your are offline or have poor network</string>
+    <string name="failed">This Task Failed</string>
+    <string name="no_student">There is no students names.Please add student names</string>
 </resources>
