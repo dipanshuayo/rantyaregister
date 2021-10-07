@@ -79,12 +79,7 @@ class TeacherActivity : AppCompatActivity() {
         return true
     }
 
-    override fun onDestroy() {
-        if(this::listener.isInitialized){
-            listener.remove()
-        }
-        super.onDestroy()
-    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.log_out -> handleOnLogOutClicked()

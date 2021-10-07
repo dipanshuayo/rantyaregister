@@ -12,6 +12,12 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bookies.register.R
+import com.bookies.register.adapters.StudentNamesRecyclerViewAdapter
+import com.bookies.register.utils.Constants
+import com.bookies.register.utils.FireBaseUtils
+import com.bookies.register.utils.ProgressCircle
+import com.bookies.register.utils.Store
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
@@ -152,7 +158,7 @@ class AddStudentsFragment : Fragment() {
 
 
     private fun attachLatestRoleNumber(names: MutableList<String>): List<String> {
-        var rollNumber = state getIntValue "lastRollNumber"
+        var rollNumber = 1
         return names.map { name -> "$name-${rollNumber++}" }
 
     }
