@@ -1,4 +1,4 @@
-package com.bookies.register
+package com.bookies.register.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import com.bookies.register.data.Option
+import com.bookies.register.R
 
 class OptionsListViewAdapter(val options:MutableList<Option>, private val context: Context): BaseAdapter(){
     override fun getCount(): Int =options.size

@@ -1,12 +1,12 @@
-package com.bookies.register
+package com.bookies.register.adapters
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bookies.register.R
 
 class StudentNamesRecyclerViewAdapter(val studentNames:MutableList<String>):
 

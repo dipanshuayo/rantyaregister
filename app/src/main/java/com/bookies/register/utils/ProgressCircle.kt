@@ -1,15 +1,14 @@
-package com.bookies.register
+package com.bookies.register.utils
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.Toast
+import com.bookies.register.R
+import com.bookies.register.activities.TeacherActivity
 
 class ProgressCircle(val context: Context) {
     lateinit var alertDialog: AlertDialog

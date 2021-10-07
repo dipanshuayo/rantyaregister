@@ -1,18 +1,21 @@
-package com.bookies.register
+package com.bookies.register.activities
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.afollestad.materialdialogs.DialogBehavior
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
+import com.bookies.register.*
+import com.bookies.register.utils.Constants
+import com.bookies.register.utils.FireBaseUtils
+import com.bookies.register.utils.ProgressCircle
 import com.google.firebase.firestore.DocumentSnapshot
 
 class SplashActivity : AppCompatActivity() {
     private lateinit var state: Store
-    private lateinit var progress:ProgressCircle
+    private lateinit var progress: ProgressCircle
     private val db = FireBaseUtils().db
     private val TAG: String = "ClassCodeDocument"
     override fun onCreate(savedInstanceState: Bundle?) {

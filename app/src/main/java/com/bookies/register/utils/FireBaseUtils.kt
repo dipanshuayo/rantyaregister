@@ -1,23 +1,13 @@
-package com.bookies.register
+package com.bookies.register.utils
 
 import android.content.Context
 import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkInfo
-import android.os.Build
-import android.util.Log
-import android.widget.Toast
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreSettings
-import com.google.firebase.firestore.FirestoreRegistrar
+import com.bookies.register.activities.TeacherActivity
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
 
-class FireBaseUtils() {
+class FireBaseUtils {
     val db = Firebase.firestore
 
     init {

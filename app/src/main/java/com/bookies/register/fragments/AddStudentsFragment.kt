@@ -1,4 +1,4 @@
-package com.bookies.register
+package com.bookies.register.fragments
 
 import android.os.Bundle
 import android.text.Editable

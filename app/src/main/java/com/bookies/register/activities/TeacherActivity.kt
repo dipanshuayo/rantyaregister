@@ -1,4 +1,4 @@
-package com.bookies.register
+package com.bookies.register.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -9,6 +9,9 @@ import android.view.MenuItem
 import android.widget.Toast
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.datetime.datePicker
+import com.bookies.register.*
+import com.bookies.register.adapters.OptionsListViewAdapter
+import com.bookies.register.data.Option
 import kotlinx.android.synthetic.main.activity_teacher.*
 import java.text.SimpleDateFormat
 import java.util.*

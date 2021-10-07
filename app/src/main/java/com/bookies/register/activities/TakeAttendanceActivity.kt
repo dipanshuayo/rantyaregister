@@ -1,4 +1,4 @@
-package com.bookies.register
+package com.bookies.register.activities
 
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -7,6 +7,10 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import com.bookies.register.*
+import com.bookies.register.utils.Constants
+import com.bookies.register.utils.FireBaseUtils
+import com.bookies.register.utils.ProgressCircle
 import com.google.firebase.firestore.FieldValue
 import kotlinx.android.synthetic.main.activity_take_attendance.*
 import kotlinx.android.synthetic.main.fragment_student_attendance.*

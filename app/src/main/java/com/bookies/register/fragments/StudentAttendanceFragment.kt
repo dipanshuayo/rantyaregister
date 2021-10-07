@@ -1,4 +1,4 @@
-package com.bookies.register
+package com.bookies.register.fragments
 
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +10,7 @@ import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.*
+import com.bookies.register.R
 
 private const val ARG_PARAM1 = "STUDENT_NAMES"
 private const val ARG_PARAM2 = "STUDENT_ATTENDANCE"

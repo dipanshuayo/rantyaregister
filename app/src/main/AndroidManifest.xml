@@ -12,14 +12,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".DateActivity"></activity>
-        <activity android:name=".AboutOurSetActivity" />
-        <activity android:name=".StudentsActivity" />
-        <activity android:name=".TakeAttendanceActivity" />
-        <activity android:name=".HelpActivity" />
-        <activity android:name=".TeacherActivity" />
+        <activity android:name=".activities.DateActivity"></activity>
+        <activity android:name=".activities.AboutOurSetActivity" />
+        <activity android:name=".activities.StudentsActivity" />
+        <activity android:name=".activities.TakeAttendanceActivity" />
+        <activity android:name=".activities.HelpActivity" />
+        <activity android:name=".activities.TeacherActivity" />
         <activity
-            android:name=".SplashActivity"
+            android:name=".activities.SplashActivity"
             android:theme="@style/SplashScreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,19 +1,18 @@
-package com.bookies.register
+package com.bookies.register.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import com.afollestad.materialdialogs.utils.MDUtil.isLandscape
-import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.Tasks
+import com.bookies.register.*
+import com.bookies.register.fragments.StudentAttendanceFragment
+import com.bookies.register.utils.Constants
+import com.bookies.register.utils.FireBaseUtils
+import com.bookies.register.utils.ProgressCircle
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.getField
-import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_date.*
 import kotlinx.android.synthetic.main.activity_take_attendance.*
 
@@ -58,7 +57,7 @@ class DateActivity : AppCompatActivity() {
         className=state.getStringValue("class")
     }
 
-    private fun onFailure(res:Int=R.string.failed,progressDisable:Boolean=true){
+    private fun onFailure(res:Int= R.string.failed, progressDisable:Boolean=true){
         if(progressDisable) {
             progress.dismiss()
         }

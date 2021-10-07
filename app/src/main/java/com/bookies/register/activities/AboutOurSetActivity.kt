@@ -1,7 +1,8 @@
-package com.bookies.register
+package com.bookies.register.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.bookies.register.R
 
 class AboutOurSetActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

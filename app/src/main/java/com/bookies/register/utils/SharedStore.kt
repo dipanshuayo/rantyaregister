@@ -1,4 +1,4 @@
-package com.bookies.register
+package com.bookies.register.utils
 
 import android.content.Context
 

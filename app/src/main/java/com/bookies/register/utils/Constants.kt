@@ -1,4 +1,4 @@
-package com.bookies.register
+package com.bookies.register.utils
 
 class Constants {
     companion object{

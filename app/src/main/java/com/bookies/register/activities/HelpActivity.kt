@@ -1,9 +1,10 @@
-package com.bookies.register
+package com.bookies.register.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import com.afollestad.materialdialogs.MaterialDialog
+import com.bookies.register.R
 import kotlinx.android.synthetic.main.activity_help.*
 
 class HelpActivity : AppCompatActivity() {

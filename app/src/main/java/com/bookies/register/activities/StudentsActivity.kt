@@ -1,11 +1,10 @@
-package com.bookies.register
+package com.bookies.register.activities
 
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
 import android.text.SpannableString
-import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.Menu
@@ -13,16 +12,16 @@ import android.view.MenuItem
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.core.text.toSpanned
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.getInputField
 import com.afollestad.materialdialogs.input.input
+import com.bookies.register.*
+import com.bookies.register.utils.Constants
+import com.bookies.register.utils.FireBaseUtils
+import com.bookies.register.utils.ProgressCircle
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_students.*
-import org.w3c.dom.Text
 
 class StudentsActivity : AppCompatActivity() {
     lateinit var arrayAdapterForStudentsName: ArrayAdapter<String>
@@ -196,7 +195,7 @@ class StudentsActivity : AppCompatActivity() {
                         document.get(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME) as List<String>
                     Log.d(TAG, studentsNameArray.toString())
                     if(studentsNameArray.isNullOrEmpty()){
-                        Toast.makeText(baseContext,R.string.no_student,Toast.LENGTH_LONG).show()
+                        Toast.makeText(baseContext, R.string.no_student,Toast.LENGTH_LONG).show()
                     }
                     initializeArrayAdapter()
                     addArrayAdapterToListView()
