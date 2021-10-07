@@ -106,7 +106,8 @@
     <string name="add">add</string>
     <string name="save_changes">Save Changes</string>
     <string name="add_students">Add students</string>
-    <string name="offline_message">your are offline or have poor network</string>
-    <string name="failed">This Task Failed</string>
+    <string name="offline_message">You are offline or having poor network</string>
+    <string name="failed">This Task Failed.Check your internet connection</string>
     <string name="no_student">There is no students names.Please add student names</string>
+    <string name="delete_message">Once you delete a student it can\'t be undo</string>
 </resources>

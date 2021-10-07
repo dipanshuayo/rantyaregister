@@ -1,16 +1,18 @@
 package com.bookies.register.activities
 
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import com.bookies.register.*
+import com.bookies.register.fragments.AddStudentsFragment
+import com.bookies.register.fragments.StudentAttendanceFragment
 import com.bookies.register.utils.Constants
 import com.bookies.register.utils.FireBaseUtils
 import com.bookies.register.utils.ProgressCircle
+import com.bookies.register.utils.Store
 import com.google.firebase.firestore.FieldValue
 import kotlinx.android.synthetic.main.activity_take_attendance.*
 import kotlinx.android.synthetic.main.fragment_student_attendance.*
@@ -18,11 +20,10 @@ import kotlinx.android.synthetic.main.fragment_student_attendance.*
 class TakeAttendanceActivity : AppCompatActivity() {
     private lateinit var studentAttendanceFragment: StudentAttendanceFragment
     private lateinit var state: Store
-    lateinit var progress: ProgressCircle
+    private lateinit var progress: ProgressCircle
     private val db = FireBaseUtils().db
     private var studentsNameArray = mutableListOf<String>()
     private val studentsAttendance = mutableListOf<Boolean>()
-
     private val TAG: String = "TakeAttendanceDocument"
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -31,8 +32,13 @@ class TakeAttendanceActivity : AppCompatActivity() {
         setContentView(R.layout.activity_take_attendance)
         state = Store(applicationContext)
         progress = ProgressCircle(this@TakeAttendanceActivity)
+        setTextToToolbar()
         getStudentsName()
 
+    }
+
+    private fun setTextToToolbar() {
+        supportActionBar?.title="${state.getStringValue("class")}: ${state.getStringValue("today_date")}"
     }
 
     private fun createAddStudents() {
@@ -62,7 +68,6 @@ class TakeAttendanceActivity : AppCompatActivity() {
         db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
             .get()
             .addOnSuccessListener { document ->
-
                     if(!document.contains(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME)){
                         createAddStudents()
                     }
@@ -79,7 +84,7 @@ class TakeAttendanceActivity : AppCompatActivity() {
             }
             .addOnCanceledListener {
                 progress.dismiss()
-                Toast.makeText(applicationContext, "Failed", Toast.LENGTH_SHORT).show()
+                FireBaseUtils.handleFailure(this@TakeAttendanceActivity)
                 FireBaseUtils.gotoTeacherActivity(this@TakeAttendanceActivity)
             }
     }

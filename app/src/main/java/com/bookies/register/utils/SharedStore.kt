@@ -1,6 +1,7 @@
 package com.bookies.register.utils
 
 import android.content.Context
+import android.content.SharedPreferences
 
 /*
  *Keys include
@@ -12,9 +13,9 @@ import android.content.Context
  * term gets the current term
  */
 class Store(context: Context){
-    val STORE_NAME="com.bookies.register.store"
-    val store=context.getSharedPreferences(STORE_NAME,Context.MODE_PRIVATE)
-    val Storeeditor=store.edit()
+    private val STORE_NAME="com.bookies.register.store"
+    private val store: SharedPreferences =context.getSharedPreferences(STORE_NAME,Context.MODE_PRIVATE)
+    private val Storeeditor: SharedPreferences.Editor =store.edit()
     fun addValue(key:String,value:Any){
        when(value){
            is String->Storeeditor.putString(key,value).commit()
@@ -24,7 +25,9 @@ class Store(context: Context){
            is Boolean->Storeeditor.putBoolean(key,value).commit()
        }
     }
-    infix fun getIntValue(key:String):Int=store.getInt(key,0)
+    fun clearStore(){
+        Storeeditor.clear()
+    }
     infix  fun getBooleanValue(key: String):Boolean=store.getBoolean(key,false)
     infix  fun getStringValue(key: String): String =store.getString(key,"null")?:"null"
     infix fun deleteStringValue(key: String)= Storeeditor.remove(key)

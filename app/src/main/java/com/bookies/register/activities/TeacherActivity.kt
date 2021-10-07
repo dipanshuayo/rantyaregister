@@ -2,16 +2,23 @@ package com.bookies.register.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.datetime.datePicker
 import com.bookies.register.*
 import com.bookies.register.adapters.OptionsListViewAdapter
 import com.bookies.register.data.Option
+import com.bookies.register.utils.Constants
+import com.bookies.register.utils.FireBaseUtils
+import com.bookies.register.utils.Store
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_teacher.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -21,37 +28,50 @@ class TeacherActivity : AppCompatActivity() {
     private var todayDate: Calendar = Calendar.getInstance()
     private lateinit var listViewIcons: Array<Int>
     private lateinit var state: Store
+    private lateinit var listener:ListenerRegistration
+    private val db:FirebaseFirestore=FireBaseUtils().db
     private val DATE_PATTERN = "dd-MM-yyyy"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_teacher)
         state = Store(applicationContext)
         setAcademicTerm()
         getTodayDate()
-        setClassNameOnToolBar()
+        setTextOnToolBar()
         getListViewIcons()
         createOptionsList()
         createOptionsListView()
         setOnClickListenerOnListView()
     }
-    private fun setClassNameOnToolBar(){
-        if(supportActionBar!=null){
-            supportActionBar?.title=state getStringValue "class"
-        }
-        else{
-            Toast.makeText(this@TeacherActivity,"No action bar",Toast.LENGTH_SHORT).show()
-        }
-    }
-    private fun setAcademicTerm() {
-        state.addValue("term", "first_term")
+
+    private fun setTextOnToolBar() {
+        val term = state.getStringValue("term").replace("_", " ").capitalize(Locale.US)
+        supportActionBar?.title = "${state.getStringValue("class")} $term"
+
+
     }
 
+    private fun setAcademicTerm() {
+         listener=db.collection(Constants.ADMIN_COLLECTION_PATH).document(Constants.TERM_INFO_DOCUMENT_NAME)
+            .addSnapshotListener { value, error ->
+                if(error!=null){
+                    FireBaseUtils.handleFailure(applicationContext)
+                }
+                if(value !=null && value.contains("term")){
+                    value.get("term")?.let { state.addValue("term", it.toString()) }
+                }
+                else{
+                    FireBaseUtils.handleFailure(applicationContext)
+                }
+            }
+
+    }
     @SuppressLint("SimpleDateFormat")
     private fun getTodayDate() {
         val calendar = Calendar.getInstance()
         val simpleDateFormat = SimpleDateFormat(DATE_PATTERN)
         state.addValue("today_date", simpleDateFormat.format(calendar.time))
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -59,6 +79,12 @@ class TeacherActivity : AppCompatActivity() {
         return true
     }
 
+    override fun onDestroy() {
+        if(this::listener.isInitialized){
+            listener.remove()
+        }
+        super.onDestroy()
+    }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.log_out -> handleOnLogOutClicked()
@@ -68,10 +94,8 @@ class TeacherActivity : AppCompatActivity() {
     }
 
 
-
     private fun handleOnAboutAppClicked() {
-
-        TODO("Not yet implemented")
+        startActivity(Intent(this@TeacherActivity, AboutOurSetActivity::class.java))
     }
 
     private fun handleOnLogOutClicked() {
@@ -149,5 +173,6 @@ class TeacherActivity : AppCompatActivity() {
             )
         }
     }
+
 
 }

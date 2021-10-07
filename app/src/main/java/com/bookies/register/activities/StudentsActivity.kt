@@ -1,3 +1,5 @@
+@file:Suppress("PrivatePropertyName")
+
 package com.bookies.register.activities
 
 import android.graphics.Color
@@ -19,18 +21,19 @@ import com.bookies.register.*
 import com.bookies.register.utils.Constants
 import com.bookies.register.utils.FireBaseUtils
 import com.bookies.register.utils.ProgressCircle
+import com.bookies.register.utils.Store
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import kotlinx.android.synthetic.main.activity_students.*
 
 class StudentsActivity : AppCompatActivity() {
-    lateinit var arrayAdapterForStudentsName: ArrayAdapter<String>
-    lateinit var state: Store
-    lateinit var className: String
-    lateinit var progress: ProgressCircle
-    val db = FireBaseUtils().db
+    private lateinit var arrayAdapterForStudentsName: ArrayAdapter<String>
+    private lateinit var state: Store
+    private lateinit var className: String
+    private lateinit var progress: ProgressCircle
+    private val db = FireBaseUtils().db
     private val TAG = "StudentsActivityDocument"
-    private var studentsNameArray = listOf<String>()
+    private var studentsNameArray:List<String> = listOf()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_students)
@@ -39,7 +42,6 @@ class StudentsActivity : AppCompatActivity() {
         className = state getStringValue "class"
         //the rest of the code check the db calls
         getStudentsName()
-
     }
 
     private fun setOnHoldClickListenerToListView() {
@@ -51,59 +53,53 @@ class StudentsActivity : AppCompatActivity() {
     }
 
     private fun handleOnLongClick(name: String) {
-//        deleteStudent(name)
         makeOnLongClickDeleteDialog(name)
     }
-    private fun makeOnLongClickDeleteDialog(name:String){
+
+    private fun makeOnLongClickDeleteDialog(name: String) {
         MaterialDialog(this@StudentsActivity).show {
             title(
-               text = setColorToText(
-                   "Student $name is about to be deleted",
-                   Color.RED
-               ).toString()
+                text = setColorToText(
+                    "Student $name is about to be deleted",
+                    Color.RED
+                ).toString()
             )
             message(
-               text= "Once you delete a student it can\'t be undo"
+                res = R.string.delete_message
             )
-            positiveButton(text ="Delete"){
+            positiveButton(text = "Delete") {
                 deleteStudent(name)
             }
         }
     }
-    private fun setColorToText(text: String, color:Int): SpannableString {
-        val spannableString=SpannableString(text)
-        spannableString.setSpan(ForegroundColorSpan(color),0,text.length-1,0)
-       return spannableString
+
+    private fun setColorToText(text: String, color: Int): SpannableString {
+        val spannableString = SpannableString(text)
+        spannableString.setSpan(ForegroundColorSpan(color), 0, text.length - 1, 0)
+        return spannableString
     }
+
     private fun deleteStudent(name: String) {
         progress.show()
         val classDoc = db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
         classDoc.update(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME, FieldValue.arrayRemove(name))
             .addOnSuccessListener {
                 arrayAdapterForStudentsName.remove(name)
-
                 deleteStudentFromCollection(classDoc, name)
             }.addOnFailureListener {
                 progress.dismiss()
-                Toast.makeText(
-                    applicationContext,
-                    R.string.failed,
-                    Toast.LENGTH_SHORT
-                ).show()
+                FireBaseUtils.handleFailure(applicationContext)
             }
-
     }
-
 
 
     private fun deleteStudentFromCollection(classDoc: DocumentReference, name: String) {
         classDoc.collection(Constants.STUDENTS_COLLECTION_PATH).document(name).delete()
+            .addOnSuccessListener {
+                Toast.makeText(applicationContext, "Student Deleted", Toast.LENGTH_LONG).show()
+            }
             .addOnFailureListener {
-                Toast.makeText(
-                    applicationContext,
-                    R.string.failed,
-                    Toast.LENGTH_SHORT
-                ).show()
+                FireBaseUtils.handleFailure(applicationContext)
             }
         progress.dismiss()
     }
@@ -126,7 +122,9 @@ class StudentsActivity : AppCompatActivity() {
             title(text = "Add a student")
             input(hint = "Student Name", inputType = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES)
             positiveButton(res = R.string.add) {
-                addStudent(addLatestRollNumberToName(it.getInputField().text.toString()))
+                addStudent(
+                    addLatestRollNumberToName(it.getInputField().text.toString())
+                )
             }
             cancelOnTouchOutside(false)
             negativeButton(res = R.string.help_dialog_positive_button_text) {
@@ -139,18 +137,12 @@ class StudentsActivity : AppCompatActivity() {
     private fun addStudent(name: String) {
         progress.show()
         val classDoc = db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
-
         classDoc.update(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME, FieldValue.arrayUnion(name))
             .addOnSuccessListener {
                 arrayAdapterForStudentsName.add(name)
-
                 makeStudentsSubCollection(classDoc, name)
             }.addOnFailureListener {
-                Toast.makeText(
-                    applicationContext,
-                    R.string.failed_class_code_verification,
-                    Toast.LENGTH_SHORT
-                ).show()
+                FireBaseUtils.handleFailure(applicationContext)
             }
 
     }
@@ -160,10 +152,10 @@ class StudentsActivity : AppCompatActivity() {
     }
 
     private fun makeStudentsSubCollection(document: DocumentReference, addedName: String) {
-        val dataToBeSent = mapOf(
-            state getStringValue "term" to mapOf<String, List<String>>(
-                "dates_present" to listOf<String>(),
-                "dates_absent" to listOf<String>()
+        val dataToBeSent:Map<String, Map<String, List<String>>> = mapOf(
+            state getStringValue "term" to mapOf(
+                "dates_present" to listOf(),
+                "dates_absent" to listOf()
             )
 
         )
@@ -176,11 +168,8 @@ class StudentsActivity : AppCompatActivity() {
                     .show()
             }
             .addOnFailureListener {
-                Toast.makeText(applicationContext, "Saving of students failed", Toast.LENGTH_LONG)
-                    .show()
-
+                FireBaseUtils.handleFailure(applicationContext)
             }
-
     }
 
 
@@ -194,20 +183,19 @@ class StudentsActivity : AppCompatActivity() {
                     studentsNameArray =
                         document.get(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME) as List<String>
                     Log.d(TAG, studentsNameArray.toString())
-                    if(studentsNameArray.isNullOrEmpty()){
-                        Toast.makeText(baseContext, R.string.no_student,Toast.LENGTH_LONG).show()
+                    if (studentsNameArray.isNullOrEmpty()) {
+                        Toast.makeText(baseContext, R.string.no_student, Toast.LENGTH_LONG).show()
                     }
                     initializeArrayAdapter()
                     addArrayAdapterToListView()
                     setOnClickListenerToListView()
                     setOnHoldClickListenerToListView()
                     progress.dismiss()
-
                 }
             }
-            .addOnCanceledListener {
+            .addOnFailureListener {
                 progress.dismiss()
-                Toast.makeText(applicationContext, "Failed", Toast.LENGTH_SHORT).show()
+                FireBaseUtils.handleFailure(this@StudentsActivity)
                 FireBaseUtils.gotoTeacherActivity(this@StudentsActivity)
             }
 
@@ -221,10 +209,10 @@ class StudentsActivity : AppCompatActivity() {
 
     private fun handleOnClickListenerForStudentListView(position: Int) {
         val studentName = studentsNameArray[position]
-        createFinalDialog(studentName)
+        createSummaryDialog(studentName)
     }
 
-    private fun makeDialog(studentName: String, message: String) {
+    private fun showSummaryDialog(studentName: String, message: String) {
         MaterialDialog(this@StudentsActivity).show {
             title(text = studentName)
             message(text = message)
@@ -232,27 +220,26 @@ class StudentsActivity : AppCompatActivity() {
         }
     }
 
-    private fun createFinalDialog(studentName: String) {
+    private fun createSummaryDialog(studentName: String) {
         progress.show()
         val term = state getStringValue "term"
         val docRef =
             db.collection("${Constants.CLASSES_COLLECTION_PATH}/${className}/${Constants.STUDENTS_COLLECTION_PATH}")
                 .document(studentName)
         docRef.get().addOnSuccessListener { document ->
-            val numberOfDatesPresent = document.get("${term}.dates_present") as List<String>
-            val numberOfDatesAbsent = document.get("${term}.dates_absent") as List<String>
+            val numberOfDatesPresent:List<String> = document.get("${term}.dates_present") as List<String>
+            val numberOfDatesAbsent:List<String> = document.get("${term}.dates_absent") as List<String>
             val message = createStudentAttendanceHistoryText(
                 numberOfDatesPresent.size,
                 numberOfDatesAbsent.size
             )
             progress.dismiss()
-            makeDialog(studentName, message)
+            showSummaryDialog(studentName, message)
             Log.d(TAG, "absent-${numberOfDatesAbsent}present-${numberOfDatesPresent}")
-            Toast.makeText(applicationContext, "got the dates", Toast.LENGTH_SHORT).show()
         }
             .addOnFailureListener {
                 progress.dismiss()
-                Toast.makeText(applicationContext, "Failed", Toast.LENGTH_SHORT).show()
+                FireBaseUtils.handleFailure(this@StudentsActivity)
             }
 
     }

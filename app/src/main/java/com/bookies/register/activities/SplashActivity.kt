@@ -11,6 +11,7 @@ import com.bookies.register.*
 import com.bookies.register.utils.Constants
 import com.bookies.register.utils.FireBaseUtils
 import com.bookies.register.utils.ProgressCircle
+import com.bookies.register.utils.Store
 import com.google.firebase.firestore.DocumentSnapshot
 
 class SplashActivity : AppCompatActivity() {
@@ -23,32 +24,8 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
         state = Store(applicationContext)
         progress= ProgressCircle(this@SplashActivity)
-        //clearStore()
-        //checkInternetConnection()
         makeDialog()
-
     }
-//    @SuppressLint("CheckResult")
-//    private fun checkInternetConnection(){
-//        val single:Single<Boolean> = ReactiveNetwork.checkInternetConnectivity()
-//        single
-//            .subscribeOn(Schedulers.io())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe { isConnectedToInternet->
-//                if(!isConnectedToInternet){
-//                    Toast.makeText(applicationContext,R.string.failed_class_code_verification,Toast.LENGTH_LONG).show()
-//                }
-//                else{
-//                    makeDialog()
-//                }
-//            }
-//    }
-
-
-    private fun clearStore() {
-        state.Storeeditor.clear()
-    }
-
     //checks if user is already logged in
     private fun checkLogin(): Boolean {
         return state getBooleanValue "login"
@@ -56,11 +33,15 @@ class SplashActivity : AppCompatActivity() {
 
     private fun makeDialog() {
         if (checkLogin()) {
-            Toast.makeText(applicationContext, "Your Already Logged in", Toast.LENGTH_SHORT).show()
+            youAreAlreadyLoggedIn()
             makeIntentToTeacherActivity()
         } else {
             createMaterialInputDialog()
         }
+    }
+
+    private fun youAreAlreadyLoggedIn() {
+        Toast.makeText(applicationContext, "Your Already Logged in", Toast.LENGTH_SHORT).show()
     }
 
     private fun createMaterialInputDialog() {
@@ -90,10 +71,7 @@ class SplashActivity : AppCompatActivity() {
             }
             .addOnFailureListener { exception ->
                 //handles if device offline
-                if (exception.message?.contains("offline") == true) {
-                    Toast.makeText(applicationContext, R.string.offline_message, Toast.LENGTH_LONG)
-                        .show()
-                }
+                FireBaseUtils.handleDeviceOffline(exception,applicationContext)
                 progress.dismiss()
                 Log.d(TAG, exception.toString())
             }
