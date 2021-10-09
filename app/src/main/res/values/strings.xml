@@ -110,4 +110,9 @@
     <string name="failed">This Task Failed.Check your internet connection</string>
     <string name="no_student">There is no students names.Please add student names</string>
     <string name="delete_message">Once you delete a student it can\'t be undo</string>
+    <string name="change_term_text">Change to second term</string>
+    <string name="start_academic_year_text">Start New Academic Year</string>
+    <string name="change_class_codes_text">Change class codes</string>
+    <string name="new_academic_dialog_title">Are you sure you wanna start a new academic session?</string>
+    <string name="new_academic_dialog_message">Once you have started it you can\'t change it. All students data will be gone and so will the attendance</string>
 </resources>

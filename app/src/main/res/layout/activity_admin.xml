@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activities.AdminActivity">
+    <Button
+        android:id="@+id/change_term_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/change_term_text"
+        android:layout_marginTop="@dimen/_32sdp"
+        android:layout_marginBottom="@dimen/_16sdp"
+        style="@style/AppTheme.Button"
+        />
+    <Button
+        android:id="@+id/new_academic_year_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/start_academic_year_text"
+        style="@style/AppTheme.Button"
+        android:layout_marginBottom="@dimen/_16sdp"
+        />
+    <Button
+        android:id="@+id/change_class_code_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/change_class_codes_text"
+        style="@style/AppTheme.Button"
+        />
+</LinearLayout>

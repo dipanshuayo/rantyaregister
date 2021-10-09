@@ -14,6 +14,7 @@ import com.bookies.register.utils.FireBaseUtils
 import com.bookies.register.utils.ProgressCircle
 import com.bookies.register.utils.Store
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.SetOptions
 import kotlinx.android.synthetic.main.activity_take_attendance.*
 import kotlinx.android.synthetic.main.fragment_student_attendance.*
 
@@ -106,7 +107,7 @@ class TakeAttendanceActivity : AppCompatActivity() {
         )
         db.collection(term)
             .document(todayDate)
-            .set(dataToBeSent)
+            .set(dataToBeSent, SetOptions.merge())
             .addOnSuccessListener {
                 updateStudentCollection(dataToBeSent, className, term, todayDate)
             }

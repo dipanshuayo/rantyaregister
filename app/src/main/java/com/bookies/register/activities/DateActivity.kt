@@ -187,7 +187,7 @@ class DateActivity : AppCompatActivity() {
                     document.get(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME) as List<String>
                 classAttendanceSetToFalse(studentNamesOrdered)
                 progress.dismiss()
-                makeFragment()
+                makeFragment(type="SAVE")
             }
             .addOnFailureListener {
                 onFailure()
@@ -209,7 +209,7 @@ class DateActivity : AppCompatActivity() {
                     document.get(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME) as List<String>
                 makeOrderedAttendance(studentNamesOrdered, unOrderedClassAttendance)
                 progress.dismiss()
-                makeFragment()
+                makeFragment(type="EDIT")
             }.addOnFailureListener {
                 onFailure()
             }
@@ -231,11 +231,11 @@ class DateActivity : AppCompatActivity() {
 
     }
 
-    private fun makeFragment() {
+    private fun makeFragment(type:String) {
         studentChangedAttendanceFragment =
             StudentAttendanceFragment.newInstance(
                 classAttendanceMap.keys.toTypedArray(),
-                classAttendanceMap.values.toBooleanArray(), "EDIT"
+                classAttendanceMap.values.toBooleanArray(), type
             )
         supportFragmentManager
             .beginTransaction()

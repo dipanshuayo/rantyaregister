@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddStudentsFragment">
+    tools:context=".fragments.AddStudentsFragment">
 <LinearLayout
     android:id="@+id/add_student_edit_linear_layout"
     android:layout_width="match_parent"

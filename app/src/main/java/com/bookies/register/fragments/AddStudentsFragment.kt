@@ -3,6 +3,7 @@ package com.bookies.register.fragments
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.KeyEvent
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -183,6 +184,14 @@ class AddStudentsFragment : Fragment() {
         addButton = addStudentFragmentView.findViewById(R.id.add_student_name_button)
         val editText =
             addStudentFragmentView.findViewById<EditText>(R.id.enter_student_name_edit_text)
+        editText.setOnKeyListener { _, keyCode, event ->
+            if(event.action==KeyEvent.ACTION_DOWN && keyCode==KeyEvent.KEYCODE_ENTER){
+                handleAddButton(editText.text.toString(),editText)
+                editText.text.clear()
+                return@setOnKeyListener true
+            }
+            return@setOnKeyListener false
+        }
         disableAddButton(editText.text.toString())
         handleEditText(editText)
         addButton.setOnClickListener {

@@ -90,7 +90,7 @@ class TeacherActivity : AppCompatActivity() {
 
 
     private fun handleOnAboutAppClicked() {
-        startActivity(Intent(this@TeacherActivity, AboutOurSetActivity::class.java))
+        startActivity(Intent(this@TeacherActivity, AdminActivity::class.java))
     }
 
     private fun handleOnLogOutClicked() {

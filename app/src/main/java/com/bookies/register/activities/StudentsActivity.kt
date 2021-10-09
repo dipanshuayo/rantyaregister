@@ -248,7 +248,8 @@ class StudentsActivity : AppCompatActivity() {
         NumberOfPresentDates: Int,
         NumberOfAbsentDates: Int,
     ): String {
-        return "Number of days PRESENT:$NumberOfPresentDates\n " +
+        return "Student history for ${state.getStringValue("term").replace("_"," ")}"+
+                "Number of days PRESENT:$NumberOfPresentDates\n " +
                 "Number of days ABSENT:$NumberOfAbsentDates\n" +
                 "Total number of days:${NumberOfAbsentDates + NumberOfPresentDates}"
 
