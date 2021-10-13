@@ -1,5 +1,7 @@
 package com.bookies.register.fragments
 
+import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bookies.register.R
@@ -63,11 +66,17 @@ class AddStudentsFragment : Fragment() {
         saveButton = addStudentFragmentView.findViewById(R.id.save_student_name_button)
         //saveButton.isEnabled = studentNames?.size != 0
         saveButton.setOnClickListener {
-            handleSaveButton()
+            createWarningDialogForSaveButton()
         }
 
     }
-
+    private fun createWarningDialogForSaveButton(){
+        val alertDialog= activity?.let { AlertDialog.Builder(it) }
+        alertDialog?.setTitle("Are you sure you wanna save student names")
+        alertDialog?.setPositiveButton("SAVE"
+        ) { _, _ -> handleSaveButton()}
+        alertDialog?.create()?.show()
+    }
     private fun handleSaveButton() {
         progress.show()
         var addedNames: MutableList<String> = mutableListOf()

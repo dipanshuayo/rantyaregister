@@ -50,6 +50,15 @@
         <item>
             How to delete a student?
         </item>
+        <item>
+            How to start a new term?
+        </item>
+        <item>
+            How to change class code?
+        </item>
+        <item>
+            How to start new academic session?
+        </item>
     </string-array>
     <string-array name="help_options_descriptions_for_list_view">
         <item>
@@ -93,7 +102,23 @@
             2.Go to the \"Students\" option and click it.\n
             3.To delete a student you have to long press on it and then a dialog will appear \n
             4.Click on the \"delete\" option to delete student\n
-
+        </item>
+        <item>
+            1.Log out of your app ,go to where you type your class code\n
+            2.Enter the admin code to access the admin section\n
+            3.Then click on "start term" to start a new term\n
+        </item>
+        <item>
+            1.Log out of your app ,go to where you type your class code\n
+            2.Enter the admin code to access the admin section\n
+            3.Click the class you want to change it\'s class code\n
+            4.Type the class code of that class\n
+            5.Enter your new class code \n
+        </item>
+        <item>
+            1.Log out of your app ,go to where you type your class code\n
+            2.Enter the admin code to access the admin section\n
+            3.Click the "start new academic session" button \n
         </item>
     </string-array>
     <string name="hello_blank_fragment">Hello blank fragment</string>

@@ -10,7 +10,7 @@ import android.widget.Toast
 import com.bookies.register.R
 import com.bookies.register.activities.TeacherActivity
 
-class ProgressCircle(val context: Context) {
+class ProgressCircle(val context: Context,val goToTeacherActivity:Boolean=true) {
     lateinit var alertDialog: AlertDialog
 
     init {
@@ -33,10 +33,12 @@ class ProgressCircle(val context: Context) {
         alertDialog = AlertDialog.Builder(context)
             .setView(progessView)
             .setOnKeyListener { dialog, keyCode, event ->
-                if(keyCode==KeyEvent.KEYCODE_BACK && event.action==KeyEvent.ACTION_UP){
-                    dialog.cancel()
-                    onClose(TeacherActivity::class.java)
-                    return@setOnKeyListener true
+                if(goToTeacherActivity) {
+                    if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+                        dialog.cancel()
+                        onClose(TeacherActivity::class.java)
+                        return@setOnKeyListener true
+                    }
                 }
                 return@setOnKeyListener false
             }
@@ -52,7 +54,7 @@ class ProgressCircle(val context: Context) {
     }
 
     fun onClose(java: Class<*>) {
-        Toast.makeText(context, "Progress cancelled", Toast.LENGTH_LONG).show()
+
         context.startActivity(
             Intent(context, java)
         )

@@ -2,6 +2,7 @@
 
 package com.bookies.register.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -91,7 +92,9 @@ class DateActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "No changes made", Toast.LENGTH_SHORT).show()
         }
     }
-
+    private fun successToast(){
+        Toast.makeText(applicationContext, "Attendance saved", Toast.LENGTH_SHORT).show()
+    }
     private fun sendChangedAttendance() {
         Log.d(TAG, "student Attendance is $changedAttendanceMap")
         progress.show()
@@ -106,10 +109,10 @@ class DateActivity : AppCompatActivity() {
             }.addOnCompleteListener {
                 updateStudentsAttendance(name, booleanValue)
             }.addOnCompleteListener {
-                Toast.makeText(applicationContext, "please work", Toast.LENGTH_SHORT).show()
+                successToast()
                 progress.dismiss()
+                progress.onClose(TeacherActivity::class.java)
             }
-
         }
     }
 
@@ -139,6 +142,7 @@ class DateActivity : AppCompatActivity() {
                 onFailure()
             }
         }
+
         save_changes_attendance_button.isEnabled = true
         progress.dismiss()
     }
@@ -183,15 +187,25 @@ class DateActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { document ->
                 //gets student names
-                studentNamesOrdered =
-                    document.get(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME) as List<String>
-                classAttendanceSetToFalse(studentNamesOrdered)
-                progress.dismiss()
-                makeFragment(type="SAVE")
+                if(document.contains(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME)) {
+                    studentNamesOrdered =
+                        document.get(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME) as List<String>
+                    classAttendanceSetToFalse(studentNamesOrdered)
+                    progress.dismiss()
+                    makeFragment(type = "SAVE")
+                }
+                else{
+                    goToAddStudentActivity()
+                }
             }
             .addOnFailureListener {
                 onFailure()
             }
+    }
+
+    private fun goToAddStudentActivity() {
+        startActivity(Intent(this@DateActivity,TakeAttendanceActivity::class.java))
+        finish()
     }
 
     private fun classAttendanceSetToFalse(studentNamesOrdered: List<String>) {

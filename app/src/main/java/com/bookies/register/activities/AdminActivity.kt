@@ -37,7 +37,7 @@ class AdminActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_admin)
         state = Store(applicationContext)
-        progress = ProgressCircle(this@AdminActivity)
+        progress = ProgressCircle(this@AdminActivity, false)
         getTerm()
     }
 
@@ -50,6 +50,7 @@ class AdminActivity : AppCompatActivity() {
                 .addOnSuccessListener { document ->
                     if (document.contains("term")) {
                         currentTerm = document.get("term") as String
+                        state.addValue("term", currentTerm)
                         setOnClickListenersToButtons()
                         progress.dismiss()
 
@@ -99,6 +100,10 @@ class AdminActivity : AppCompatActivity() {
 
     }
 
+    private fun successToast() {
+        Toast.makeText(applicationContext, "Done", Toast.LENGTH_LONG).show()
+    }
+
     private fun handleOnChangeClassCodeButton(classData: DocumentSnapshot?, className: String) {
         MaterialDialog(this@AdminActivity).show {
             title(text = "Enter class code for $className")
@@ -108,7 +113,7 @@ class AdminActivity : AppCompatActivity() {
                 Log.d("PassWord", "truepassword $truePassWord edit password $text")
                 if (text.toString() == truePassWord) {
                     dialog.dismiss()
-                    makeNewClassCodeDialog(className,truePassWord)
+                    makeNewClassCodeDialog(className, truePassWord)
 
                 } else {
                     Toast.makeText(applicationContext, "Wrong Password", Toast.LENGTH_LONG).show()
@@ -118,50 +123,64 @@ class AdminActivity : AppCompatActivity() {
         }
     }
 
-    private fun makeNewClassCodeDialog(className: String,oldClassCode:String) {
+    private fun makeNewClassCodeDialog(className: String, oldClassCode: String) {
 
         MaterialDialog(this@AdminActivity).show {
             title(text = "Enter new class code for $className")
             input(hint = "Enter new class code", maxLength = 5) { materialDialog, charSequence ->
                 progress.show()
-                changePassCode(className = className, classCode = charSequence.toString(),oldClassCode=oldClassCode)
+                changePassCode(
+                    className = className,
+                    classCode = charSequence.toString(),
+                    oldClassCode = oldClassCode
+                )
             }
             positiveButton(res = R.string.login_dialog_postive_button_text)
         }
     }
 
-    private fun changePassCode(className: String, classCode: String,oldClassCode:String) {
+    private fun changePassCode(className: String, classCode: String, oldClassCode: String) {
         val doc = db.collection(Constants.PASSCODE_COLLECTION_PATH)
             .document(Constants.CLASS_CODE_DOCUMENT_NAME)
 
         doc.update(mapOf(oldClassCode to FieldValue.delete())).addOnCompleteListener {
             doc.set(mapOf(classCode to className), SetOptions.merge()).addOnCompleteListener {
+                successToast()
                 progress.dismiss()
             }
 
         }
     }
-        private fun setChangeAcademicYearButtonOnClick() {
-            new_academic_year_button.setOnClickListener {
-                createWarningDialog()
-            }
 
+    private fun setChangeAcademicYearButtonOnClick() {
+        new_academic_year_button.setOnClickListener {
+            createWarningDialog()
         }
 
+    }
 
 
-        private fun createWarningDialog() {
-            MaterialDialog(this@AdminActivity).show {
-                title(res = R.string.new_academic_dialog_title)
-                message(res = R.string.new_academic_dialog_message)
-                positiveButton(res = R.string.start_academic_year_text) {
-                    progress.show()
-                    handleOnNewAcademicSession()
-                }
+    private fun createWarningDialog() {
+        MaterialDialog(this@AdminActivity).show {
+            title(res = R.string.new_academic_dialog_title)
+            message(res = R.string.new_academic_dialog_message)
+            positiveButton(res = R.string.start_academic_year_text) {
+                progress.show()
+                handleOnNewAcademicSession()
             }
         }
+    }
 
-        private fun handleOnNewAcademicSession() {
+    private fun handleOnNewAcademicSession() {
+        if (currentTerm[0].toString() != "t") {
+            Toast.makeText(
+                applicationContext,
+                "Term must be third in order to start new academic session",
+                Toast.LENGTH_LONG
+            ).show()
+            progress.dismiss()
+        } else {
+            progress.show()
             val adminDoc = db.collection(Constants.ADMIN_COLLECTION_PATH)
                 .document(Constants.TERM_INFO_DOCUMENT_NAME)
             val datesDoc = db.collection(currentTerm)
@@ -175,71 +194,103 @@ class AdminActivity : AppCompatActivity() {
                         }
                     }
                 }
-
             }.addOnCompleteListener {
-                Toast.makeText(applicationContext, "yesyes yes yes ", Toast.LENGTH_LONG).show()
+                deleteOtherTerms()
+            }.addOnCompleteListener {
                 deleteStudentSubCollection(studentsDoc)
             }.addOnCompleteListener {
                 progress.dismiss()
+                successToast()
             }
                 .addOnFailureListener {
                     Log.d("admin", it.toString())
                     FireBaseUtils.handleFailure(applicationContext)
                 }
         }
+    }
 
-        private fun deleteStudentSubCollection(studentsDoc: CollectionReference) {
-            studentsDoc.get().addOnSuccessListener { documents ->
-                for (document in documents) {
-                    if (!document.data.isNullOrEmpty()) {
-                        studentsDoc
-                            .document(document.id)
-                            .update(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME, FieldValue.delete())
-                        studentsDoc
-                            .document(document.id)
-                            .collection(Constants.STUDENTS_COLLECTION_PATH)
-                            .get()
-                            .addOnSuccessListener { students ->
-                                for (student in students) {
-                                    studentsDoc
-                                        .document(document.id)
-                                        .collection(Constants.STUDENTS_COLLECTION_PATH)
-                                        .document(student.id)
-                                        .delete()
-                                }
-                            }
-
+    private fun deleteOtherTerms() {
+        val firstTermDates = db.collection(termsArray[0])
+        val secondTermDates = db.collection(termsArray[1])
+        firstTermDates.get().addOnSuccessListener { documents ->
+            for (document in documents) {
+                if (document.exists()) {
+                    db.runBatch { batch ->
+                        batch.delete(firstTermDates.document(document.id))
                     }
-
+                }
+            }
+        }.addOnCompleteListener {
+            secondTermDates.get().addOnSuccessListener { documents ->
+                for (document in documents) {
+                    if (document.exists()) {
+                        db.runBatch { batch ->
+                            batch.delete(secondTermDates.document(document.id))
+                        }
+                    }
                 }
             }
         }
+    }
 
-        private fun setChangeTermButtonOnClick() {
-            val newTerm = termsArray[getNextIndex(currentTerm)]
-            Toast.makeText(applicationContext, newTerm, Toast.LENGTH_LONG).show()
-            change_term_button.text = newTerm.replace("_", " ")
-            change_term_button.setOnClickListener {
-                handleOnChangeTermButtonClick(newTerm)
+
+    private fun deleteStudentSubCollection(studentsDoc: CollectionReference) {
+        studentsDoc.get().addOnSuccessListener { documents ->
+            for (document in documents) {
+                if (!document.data.isNullOrEmpty()) {
+                    studentsDoc
+                        .document(document.id)
+                        .update(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME, FieldValue.delete())
+                    studentsDoc
+                        .document(document.id)
+                        .collection(Constants.STUDENTS_COLLECTION_PATH)
+                        .get()
+                        .addOnSuccessListener { students ->
+                            for (student in students) {
+                                studentsDoc
+                                    .document(document.id)
+                                    .collection(Constants.STUDENTS_COLLECTION_PATH)
+                                    .document(student.id)
+                                    .delete()
+                            }
+                        }
+
+                }
+
             }
         }
-
-        private fun getNextIndex(string: String): Int {
-            return if (termsArray.indexOf(string) == termsArray.lastIndex) {
-                0
-            } else {
-                termsArray.indexOf(string) + 1
-            }
-        }
-
-        private fun handleOnChangeTermButtonClick(newTerm: String) {
-            progress.show()
-            db.collection(Constants.ADMIN_COLLECTION_PATH)
-                .document(Constants.TERM_INFO_DOCUMENT_NAME)
-                .update("term", newTerm)
-                .addOnSuccessListener { progress.dismiss() }
-                .addOnFailureListener { FireBaseUtils.handleFailure(applicationContext) }
-        }
-
 
     }
+
+    private fun setChangeTermButtonOnClick() {
+        val newTerm = termsArray[getNextIndex(currentTerm)]
+        change_term_button.text = "change to ${newTerm.replace("_", " ")}"
+        change_term_button.setOnClickListener {
+            handleOnChangeTermButtonClick(newTerm)
+        }
+    }
+
+    private fun getNextIndex(string: String): Int {
+        return if (termsArray.indexOf(string) == termsArray.lastIndex) {
+            0
+        } else {
+            termsArray.indexOf(string) + 1
+        }
+    }
+
+    private fun handleOnChangeTermButtonClick(newTerm: String) {
+        progress.show()
+        db.collection(Constants.ADMIN_COLLECTION_PATH)
+            .document(Constants.TERM_INFO_DOCUMENT_NAME)
+            .update("term", newTerm)
+            .addOnSuccessListener {
+                progress.dismiss()
+                state.addValue("term", newTerm)
+                successToast()
+                finishAffinity()
+                finish()
+            }
+            .addOnFailureListener { FireBaseUtils.handleFailure(applicationContext) }
+    }
+
+}

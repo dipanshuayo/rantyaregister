@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.bookies.register.*
@@ -139,9 +140,12 @@ class TakeAttendanceActivity : AppCompatActivity() {
         }
         Thread.sleep(2000)
         progress.dismiss()
-
+        successToast()
+        progress.onClose(TeacherActivity::class.java)
     }
-
+    private fun successToast(){
+        Toast.makeText(applicationContext,"Attendance Saved",Toast.LENGTH_LONG).show()
+    }
     private fun createStudentAttendance() {
         studentAttendanceFragment =
             StudentAttendanceFragment.newInstance(

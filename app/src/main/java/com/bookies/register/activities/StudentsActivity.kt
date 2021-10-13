@@ -2,6 +2,7 @@
 
 package com.bookies.register.activities
 
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -122,8 +123,9 @@ class StudentsActivity : AppCompatActivity() {
             title(text = "Add a student")
             input(hint = "Student Name", inputType = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES)
             positiveButton(res = R.string.add) {
+                val name= addLatestRollNumberToName(it.getInputField().text.toString())
                 addStudent(
-                    addLatestRollNumberToName(it.getInputField().text.toString())
+                   name
                 )
             }
             cancelOnTouchOutside(false)
@@ -136,19 +138,20 @@ class StudentsActivity : AppCompatActivity() {
 
     private fun addStudent(name: String) {
         progress.show()
+        arrayAdapterForStudentsName.add(name)
         val classDoc = db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
         classDoc.update(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME, FieldValue.arrayUnion(name))
             .addOnSuccessListener {
-                arrayAdapterForStudentsName.add(name)
                 makeStudentsSubCollection(classDoc, name)
             }.addOnFailureListener {
+                arrayAdapterForStudentsName.remove(name)
                 FireBaseUtils.handleFailure(applicationContext)
             }
 
     }
 
     private fun addLatestRollNumberToName(name: String): String {
-        return name.plus("-${students_list_view.adapter.count}")
+        return name.plus("-${students_list_view.adapter.count + 1}")
     }
 
     private fun makeStudentsSubCollection(document: DocumentReference, addedName: String) {
@@ -164,7 +167,7 @@ class StudentsActivity : AppCompatActivity() {
             .set(dataToBeSent)
             .addOnSuccessListener {
                 progress.dismiss()
-                Toast.makeText(applicationContext, "Saving of students done", Toast.LENGTH_SHORT)
+                Toast.makeText(applicationContext, "Saving of student done", Toast.LENGTH_SHORT)
                     .show()
             }
             .addOnFailureListener {
@@ -192,6 +195,11 @@ class StudentsActivity : AppCompatActivity() {
                     setOnHoldClickListenerToListView()
                     progress.dismiss()
                 }
+                else{
+                    Toast.makeText(baseContext, R.string.no_student, Toast.LENGTH_LONG).show()
+                    progress.dismiss()
+                    goToAddStudentActivity()
+                }
             }
             .addOnFailureListener {
                 progress.dismiss()
@@ -199,6 +207,10 @@ class StudentsActivity : AppCompatActivity() {
                 FireBaseUtils.gotoTeacherActivity(this@StudentsActivity)
             }
 
+    }
+    private fun goToAddStudentActivity() {
+        startActivity(Intent(this@StudentsActivity,TakeAttendanceActivity::class.java))
+        finish()
     }
 
     private fun setOnClickListenerToListView() {
@@ -227,8 +239,14 @@ class StudentsActivity : AppCompatActivity() {
             db.collection("${Constants.CLASSES_COLLECTION_PATH}/${className}/${Constants.STUDENTS_COLLECTION_PATH}")
                 .document(studentName)
         docRef.get().addOnSuccessListener { document ->
-            val numberOfDatesPresent:List<String> = document.get("${term}.dates_present") as List<String>
-            val numberOfDatesAbsent:List<String> = document.get("${term}.dates_absent") as List<String>
+            var numberOfDatesPresent:List<String> = listOf()
+            var numberOfDatesAbsent:List<String> =listOf()
+            if(document.contains("${term}.dates_present")){
+                numberOfDatesPresent= document.get("${term}.dates_present") as List<String>
+            }
+            if(document.contains("${term}.dates_absent")){
+                numberOfDatesAbsent = document.get("${term}.dates_absent") as List<String>
+            }
             val message = createStudentAttendanceHistoryText(
                 numberOfDatesPresent.size,
                 numberOfDatesAbsent.size
@@ -248,7 +266,7 @@ class StudentsActivity : AppCompatActivity() {
         NumberOfPresentDates: Int,
         NumberOfAbsentDates: Int,
     ): String {
-        return "Student history for ${state.getStringValue("term").replace("_"," ")}"+
+        return "Student history for ${state.getStringValue("term").replace("_"," ")} \n"+
                 "Number of days PRESENT:$NumberOfPresentDates\n " +
                 "Number of days ABSENT:$NumberOfAbsentDates\n" +
                 "Total number of days:${NumberOfAbsentDates + NumberOfPresentDates}"

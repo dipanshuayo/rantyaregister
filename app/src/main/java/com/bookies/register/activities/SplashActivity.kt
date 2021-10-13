@@ -63,7 +63,7 @@ class SplashActivity : AppCompatActivity() {
             .addOnSuccessListener { document ->
                 if (document != null) {
                     verifyAndGetClassCode(document, classCode)
-                    setIsStudentNameAdded()
+                   // setIsStudentNameAdded()
                     Log.d(TAG, "DocumentSnapshot data: ${document.data}")
                 } else {
                     Log.d(TAG, "No such document")
@@ -78,30 +78,36 @@ class SplashActivity : AppCompatActivity() {
 
     }
 
-    private fun setIsStudentNameAdded() {
-        val className=state getStringValue "class"
-        if(className != "null") {
-            db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
-                .get()
-                .addOnSuccessListener { document ->
-                    if (document.contains(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME)) {
-                        state.addValue("isStudentNameAdded", true)
-                    } else {
-                        state.addValue("isStudentNameAdded", false)
-                    }
-                    makeIntentToTeacherActivity()
-                }
-        }
-    }
+//    private fun setIsStudentNameAdded() {
+//        val className=state getStringValue "class"
+//        if(className != "null") {
+//            db.collection(Constants.CLASSES_COLLECTION_PATH).document(className)
+//                .get()
+//                .addOnSuccessListener { document ->
+//                    if (document.contains(Constants.STUDENT_NAMES_ARRAY_FIELD_NAME)) {
+//                        state.addValue("isStudentNameAdded", true)
+//                    } else {
+//                        state.addValue("isStudentNameAdded", false)
+//                    }
+//
+//                }
+//        }
+//    }
 
 
-    private fun verifyAndGetClassCode(document: DocumentSnapshot, classCode: String) {
+    private fun verifyAndGetClassCode(document: DocumentSnapshot, classCode: String){
+        val admin="admin"
         if (document.contains(classCode)) {
-            val className: String = document.get(classCode).toString()
-            state.addValue("class", className)
-            state.addValue("login", true)
-            Log.d(TAG, state getStringValue "class")
-            Log.d(TAG, className)
+            val className: String = document.get(classCode) as String
+                state.addValue("class", className)
+            if(isAdmin(className)){
+                makeIntentToAdminActivity()
+            }else {
+                state.addValue("login", true)
+                makeIntentToTeacherActivity()
+                Log.d(TAG, state getStringValue "class")
+                Log.d(TAG, className)
+            }
 
         } else {
             Toast.makeText(
@@ -112,11 +118,20 @@ class SplashActivity : AppCompatActivity() {
             progress.dismiss()
         }
     }
-
+    private fun isAdmin(className:String):Boolean{
+        return className.get(0).toString()=="a" && className.get(1).toString()=="d" && className.get(2).toString()=="m"  && className.get(3).toString()=="i" && className.get(4).toString()=="n"
+    }
     private fun makeIntentToTeacherActivity() {
         progress.dismiss()
         startActivity(
             Intent(this@SplashActivity, TeacherActivity::class.java)
+        )
+        finish()
+    }
+    private fun makeIntentToAdminActivity(){
+        progress.dismiss()
+        startActivity(
+            Intent(this@SplashActivity, AdminActivity::class.java)
         )
         finish()
     }

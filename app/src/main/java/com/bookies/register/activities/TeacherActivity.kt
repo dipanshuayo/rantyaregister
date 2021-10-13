@@ -87,10 +87,13 @@ class TeacherActivity : AppCompatActivity() {
         }
         return true
     }
-
+    override fun onBackPressed(){
+        finishAffinity()
+        finish()
+    }
 
     private fun handleOnAboutAppClicked() {
-        startActivity(Intent(this@TeacherActivity, AdminActivity::class.java))
+        startActivity(Intent(this@TeacherActivity, AboutOurSetActivity::class.java))
     }
 
     private fun handleOnLogOutClicked() {
